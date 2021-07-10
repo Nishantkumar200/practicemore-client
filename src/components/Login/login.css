@@ -1,0 +1,21 @@
+.login_illustration{
+    object-fit:contain !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.login_header{
+    font-size:2em !important;
+    font-weight:600 !important;
+    margin-bottom: 10px !important;
+}
+
+.field{
+    margin-bottom: 20px !important;
+    margin-top: 5px !important;
+
+}
+
+.register{
+    margin-top:20px !important;
+}
