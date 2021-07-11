@@ -47,10 +47,10 @@ import BorderColorIcon from "@material-ui/icons/BorderColor";
 import "./joinmeeting.css";
 import SettingsIcon from "@material-ui/icons/Settings";
 import Board from "../Canvas Board/Board";
+import { URL } from "../../URL/url";
 
 function Challenges() {
-  const socket = io("http://localhost:5000");
-  console.log("joinmeet",socket)
+  const socket = io(URL);
   const meetLink = window.location.href;
   const [frndEmail, setFrndEmail] = useState("");
   const [discussionPanel, setDiscussionPanel] = useState(false);
@@ -176,7 +176,6 @@ function Challenges() {
   socket.on("sendMessage", (data) => {
     setmsgShow(data);
   });
-
 
   useEffect(() => {
     var firepadRef = getExampleRef();
@@ -417,7 +416,7 @@ function Challenges() {
                 </ToolBar>
               </AppBar>
 
-              <Board  />
+              <Board />
             </DialogContent>
           </Dialog>
           {/* Code editor */}
@@ -601,7 +600,7 @@ function Challenges() {
                   </IconButton>
                 </div>
                 <div className="allChats">
-                  <Typography variant="body2">{msgshow}</Typography>
+                  <Typography>{msgshow}</Typography>
                 </div>
                 <div>
                   <TextField

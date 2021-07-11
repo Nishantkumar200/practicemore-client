@@ -59,13 +59,12 @@ export const SIGNIN =
         payload: data,
       });
 
-      console.log(data)
-      if (data?.token) {
-        localStorage.setItem("userInfo", JSON.stringify(data));
-        history.push("/dashboard");
-      } else {
-        history.push("/login");
-      }
+      // if (data?.token) {
+      //   localStorage.setItem("userInfo", JSON.stringify(data));
+      //   history.push("/dashboard");
+      // } else {
+      //   history.push("/login");
+      // }
     } catch (error) {
       console.log(error.message);
     }
@@ -233,7 +232,7 @@ export const executeProgram = (code, language, input) => async (dispatch) => {
 
 //join the meeting
 
-export const joinMeeting = (mail,history,meetLink) => async (dispatch) => {
+export const joinMeeting = (mail,meetLink) => async (dispatch) => {
   
   dispatch({
     type: "CONNECT_TO_FRND_REQUEST",

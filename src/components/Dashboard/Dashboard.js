@@ -53,7 +53,6 @@ function Dashboard() {
     history.push("/login");
   }
   const [modalstate, setModalstate] = useState(false);
-  
 
   const dispatch = useDispatch();
   const { usermeetings, loading } = useSelector((state) => state.allMeetings);
@@ -61,11 +60,7 @@ function Dashboard() {
   const [practice, setPractice] = useState("");
 
   const todayDate = new Date();
-  const day = todayDate.getDate();
-  const month = todayDate.getMonth();
-  const year = todayDate.getFullYear();
-  const time = todayDate.getTime();
-  console.log(day,month,year,time)
+  console.log(todayDate);
 
   const allAvailableForPractice = [
     "Datastructure",
@@ -83,7 +78,6 @@ function Dashboard() {
     }, 1000);
   };
 
-
   // cancel the meeting
 
   const meetingCancel = (meetId, userId) => {
@@ -94,11 +88,9 @@ function Dashboard() {
 
   // handling meeting with freind
 
-  
-
   useEffect(() => {
     dispatch(findAllMeeting(userDetail?.id));
-    document.title ="Dashboard"
+    document.title = "Dashboard";
   }, [dispatch, userDetail?.id]);
 
   return (
@@ -126,9 +118,7 @@ function Dashboard() {
                     </Link>
                   </Grid>
                   <Grid item>
-                    <Link to ={'/session/join/'}>
-                    Practice with freind
-                    </Link>
+                    <Link to={"/session/join/"}>Practice with freind</Link>
                   </Grid>
                 </Grid>
               </Grid>
@@ -138,7 +128,6 @@ function Dashboard() {
 
         {/* Practice with friends Dialog */}
 
-        
         <Container>
           <Button
             variant="contained"
@@ -182,7 +171,7 @@ function Dashboard() {
                           >
                             <Typography variant="body2">
                               {" "}
-                              {forPractice}
+                              {forPractice.toLocaleUpperCase()}
                             </Typography>
                           </MenuItem>
                         ))}
@@ -242,10 +231,10 @@ function Dashboard() {
                 <Table>
                   <TableHead>
                     <TableRow hover>
-                      <TableCell>Date & Time</TableCell>
+                      <TableCell>Scheduled On</TableCell>
                       <TableCell>Question you'll ask</TableCell>
-                      <TableCell>Language</TableCell>
-                      <TableCell>Matched Peer Name</TableCell>
+                      <TableCell>Type</TableCell>
+                    
                       <TableCell>Action</TableCell>
                     </TableRow>
                   </TableHead>
@@ -258,41 +247,47 @@ function Dashboard() {
                           )}
                         </TableCell>
                         <TableCell>
-                          <Link
-                            to={`/challenge/${meeting?.questionId}`}
-                          >
+                          <Link to={`/challenge/${meeting?.questionId}`}>
                             {meeting?.quesionyouask}
                           </Link>
                         </TableCell>
-                        <TableCell>{meeting?.language}</TableCell>
-                        <TableCell>{meeting?.withPeerName}</TableCell>
-
-                        {console.log("MEeting time",moment(meeting?.slottime).milliseconds())}
-
+                        <TableCell>{meeting?.language.toUpperCase()}</TableCell>
                         <TableCell>
-                          <Tooltip title="Cancel meeting">
-                            <IconButton
-                              onClick={() =>
-                                meetingCancel(meeting?._id, userDetail?.id)
-                              }
-                              color="secondary"
-                            >
-                              <CloseIcon />
-                            </IconButton>
-                          </Tooltip>
-                          <span>
-                            {" "}
-                            |{" "}
-                            <Link
-                              to={`/meetingreschedule/${userDetail?.id}/${meeting?._id}`}
-                            >
-                              <Tooltip title="Reschedule meeting">
-                                <IconButton color="primary">
-                                  <ScheduleIcon />
+                          {moment(todayDate).isSameOrAfter(
+                            new Date(meeting?.slottime)
+                          ) ? (
+                            <Link to={`/schedule/${meeting?.questionId}`} style={{textDecoration:"none"}}>
+                              <Button variant="contained" color="primary">
+                                Join Session
+                              </Button>
+                            </Link>
+                          ) : (
+                            <>
+                              <Tooltip title="Cancel meeting">
+                                <IconButton
+                                  onClick={() =>
+                                    meetingCancel(meeting?._id, userDetail?.id)
+                                  }
+                                  color="secondary"
+                                >
+                                  <CloseIcon />
                                 </IconButton>
                               </Tooltip>
-                            </Link>
-                          </span>
+                              <span>
+                                {" "}
+                                |{" "}
+                                <Link
+                                  to={`/meetingreschedule/${userDetail?.id}/${meeting?._id}`}
+                                >
+                                  <Tooltip title="Reschedule meeting">
+                                    <IconButton color="primary">
+                                      <ScheduleIcon />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Link>
+                              </span>
+                            </>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}

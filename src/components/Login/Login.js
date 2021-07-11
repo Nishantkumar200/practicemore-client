@@ -31,7 +31,7 @@ function Login() {
   const [userdetail, setuserDetail] = useState(initialLoginValue);
 
   const { loading, userInfo } = useSelector((state) => state.loginauth);
-  console.log(loading, userInfo);
+
 
   const handleChange = (e) => {
     e.preventDefault();
@@ -45,7 +45,6 @@ function Login() {
   };
 
   useEffect(() => {
-
     document.title = "Login";
   }, [history, userDetail]);
 

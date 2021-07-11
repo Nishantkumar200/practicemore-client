@@ -27,7 +27,7 @@ function App() {
         <Route path="/dashboard">
           <Dashboard />
         </Route>
-        <Route exact path = "/schedule">
+        <Route exact path = "/schedule/:id">
           <Meeting />
         </Route>
         <Route path = "/challenge/:id">
@@ -36,7 +36,7 @@ function App() {
         <Route path ="/meetingreschedule/:userId/:meetingId" >
           <Meetingreschedule />
         </Route>
-        <Route path ="/session/join/" >
+        <Route path ="/session/join" >
           <Joinmeeting />
         </Route>
       </Switch>

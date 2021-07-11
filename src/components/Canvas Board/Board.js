@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
 import io from "socket.io-client";
+import { URL } from "../../URL/url";
 
 function Board() {
-  const socket = io("http://localhost:5000");
+  const socket = io(URL);
 
   socket.on("canvas-data", (data) => {
     var image = new Image();
