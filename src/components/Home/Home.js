@@ -59,8 +59,10 @@ function Home() {
                     variant="outlined"
                     color="primary"
                     startIcon={<VpnKeyIcon />}
+                    component ={Link}
+                    to ='/login'
                   >
-                    <Link to="/login">Login</Link>
+                    Login
                   </Button>
                 </Grid>
               </Grid>

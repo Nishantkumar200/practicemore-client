@@ -40,9 +40,9 @@ export const SIGNUP =
   };
 
 export const SIGNIN =
-  ({ email, password }, history) =>
+  ({ email, password }) =>
   async (dispatch) => {
-    // console.log(email, password);
+    console.log(email, password);
 
     dispatch({ type: "LOGIN_REQUEST", payload: { email, password } });
 
@@ -232,25 +232,23 @@ export const executeProgram = (code, language, input) => async (dispatch) => {
 
 //join the meeting
 
-export const joinMeeting = (mail,meetLink) => async (dispatch) => {
-  
+export const joinMeeting = (mail, meetLink) => async (dispatch) => {
   dispatch({
     type: "CONNECT_TO_FRND_REQUEST",
     payload: { mail },
   });
 
-
   //  Here I was doing wrong, i was calling asyn function without await
   try {
-
-    const  {data}  = await axios.post(`${URL}/session/join`, { mail,meetLink });
+    const { data } = await axios.post(`${URL}/session/join`, {
+      mail,
+      meetLink,
+    });
 
     dispatch({
       type: "CONNECT_TO_FRND_REQUEST_SUCCESS",
       payload: { data },
     });
-
-  
   } catch (error) {
     console.log(error);
   }

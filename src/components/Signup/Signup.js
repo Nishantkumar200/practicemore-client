@@ -11,6 +11,7 @@ import { Typography } from "@material-ui/core";
 import { Backdrop, CircularProgress } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import { GoogleLogin } from "react-google-login";
 
 function Signup() {
   const dispatch = useDispatch();
@@ -42,19 +43,35 @@ function Signup() {
     dispatch(SIGNUP(formData, history));
   };
 
+  //sign up with google
+
+  const responseGoogle = (response) => {
+    console.log(response?.profileObj);
+    const { name, email, googleId } = response?.profileObj;
+    console.log(name, email, googleId);
+    setFormData({
+      ...formData,
+      username: name,
+      email: email,
+      password: googleId,
+      confirmPassword: googleId,
+    });
+
+    dispatch(SIGNUP(formData, history));
+  };
   useEffect(() => {
     document.title = "Sign Up ";
   }, [history, userDetail]);
   return (
     <React.Fragment>
-      <Link to="/" style={{ textDecoration: "none"}}>
+      <Link to="/" style={{ textDecoration: "none" }}>
         <Typography
           style={{
             alignItems: "center",
             textDecoration: "none",
             display: "flex",
-            marginTop:'20px',
-            marginBottom:"25px"
+            marginTop: "20px",
+            marginBottom: "25px",
           }}
         >
           <ArrowBackIcon />
@@ -151,6 +168,18 @@ function Signup() {
                   Already have an account ? <Link to="/login">Login</Link>
                 </Typography>
               </form>
+              <Typography style={{ textAlign: "center", marginTop: "20px" }}>
+                Or
+              </Typography>
+
+              <GoogleLogin
+                clientId="513270965377-qqaf5mmsihis676tglivf3hqniaief6q.apps.googleusercontent.com"
+                onSuccess={responseGoogle}
+                onFailure={responseGoogle}
+                buttonText="Continue with google"
+                cookiePolicy={"single_host_origin"}
+                className="googlebtn"
+              />
             </Grid>
           </Grid>
         </Container>

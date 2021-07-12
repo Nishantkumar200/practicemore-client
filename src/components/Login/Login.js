@@ -12,17 +12,12 @@ import "./login.css";
 import { Backdrop, CircularProgress } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import { GoogleLogin } from "react-google-login";
 
 function Login() {
   const history = useHistory();
   const dispatch = useDispatch();
   const userDetail = JSON.parse(localStorage.getItem("userInfo"));
-  if (userDetail?.isAuthenticated) {
-    history.push("/dashboard");
-  } else {
-    history.push("/login");
-  }
-
   const initialLoginValue = {
     email: "",
     password: "",
@@ -31,7 +26,6 @@ function Login() {
   const [userdetail, setuserDetail] = useState(initialLoginValue);
 
   const { loading, userInfo } = useSelector((state) => state.loginauth);
-
 
   const handleChange = (e) => {
     e.preventDefault();
@@ -44,20 +38,32 @@ function Login() {
     setuserDetail("");
   };
 
+  // google sign in
+
+  const responseGoogle = (response) => {
+    const { email, googleId } = response?.profileObj;
+    setuserDetail({ ...userDetail, email, password: googleId });
+      dispatch(SIGNIN(userdetail));
+  };
   useEffect(() => {
+    if (userDetail?.isAuthenticated) {
+      history.push("/dashboard");
+    } else {
+      history.push("/login");
+    }
     document.title = "Login";
   }, [history, userDetail]);
 
   return (
     <React.Fragment>
-       <Link to="/" style={{ textDecoration: "none"}}>
+      <Link to="/" style={{ textDecoration: "none" }}>
         <Typography
           style={{
             alignItems: "center",
             textDecoration: "none",
             display: "flex",
-            marginTop:'20px',
-            marginBottom:"25px"
+            marginTop: "20px",
+            marginBottom: "25px",
           }}
         >
           <ArrowBackIcon />
@@ -82,7 +88,12 @@ function Login() {
               <Typography className="login_header">Login</Typography>
               <Typography>Welcome Back </Typography>
               {userInfo?.message ? (
-                <Alert severity="error" style={{marginTop:"10px",marginBottom:"10px"}}>{userInfo?.message}</Alert>
+                <Alert
+                  severity="error"
+                  style={{ marginTop: "10px", marginBottom: "10px" }}
+                >
+                  {userInfo?.message}
+                </Alert>
               ) : null}
               <form>
                 <TextField
@@ -122,6 +133,19 @@ function Login() {
                   Not registered yet ? <Link to="/signup">Register Now</Link>
                 </Typography>
               </form>
+
+              <Typography style={{ textAlign: "center", marginTop: "20px" }}>
+                Or
+              </Typography>
+
+              <GoogleLogin
+                clientId="513270965377-qqaf5mmsihis676tglivf3hqniaief6q.apps.googleusercontent.com"
+                onSuccess={responseGoogle}
+                onFailure={responseGoogle}
+                buttonText="Login with google"
+                cookiePolicy={"single_host_origin"}
+                className="googlebtn"
+              />
             </Grid>
           </Grid>
         </Container>

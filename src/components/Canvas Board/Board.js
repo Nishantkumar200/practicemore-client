@@ -1,9 +1,11 @@
-import React, { useEffect } from "react";
+import { Typography } from "@material-ui/core";
+import React, { useEffect,useState } from "react";
 import io from "socket.io-client";
 import { URL } from "../../URL/url";
 
 function Board() {
   const socket = io(URL);
+  const [color,setColor] = useState()
 
   socket.on("canvas-data", (data) => {
     var image = new Image();
@@ -15,7 +17,7 @@ function Board() {
     image.src = data;
   });
 
-  useEffect(() => {
+  
     var timeout;
     const drawOnCanvas = () => {
       var canvas = document.querySelector("#board");
@@ -45,7 +47,7 @@ function Board() {
       ctx.lineWidth = 3;
       ctx.lineJoin = "round";
       ctx.lineCap = "round";
-      ctx.strokeStyle = "blue";
+      ctx.strokeStyle = `${color}`;
 
       canvas.addEventListener(
         "mousedown",
@@ -63,7 +65,8 @@ function Board() {
         false
       );
 
-      const onPaint = () => {
+      const onPaint = (e) => {
+        e.preventDefault();
         ctx.beginPath();
         ctx.moveTo(last_mouse.x, last_mouse.y);
         ctx.lineTo(mouse.x, mouse.y);
@@ -77,14 +80,23 @@ function Board() {
         timeout = setTimeout(function () {
           var base64ImageData = canvas.toDataURL("image/png");
           socket.emit("canvas-data", base64ImageData);
-          console.log( socket.emit("canvas-data", base64ImageData))
+         
         }, 1000);
       };
     };
-    drawOnCanvas();
-  }, [socket]);
+
+    useEffect(() =>{
+
+      drawOnCanvas();
+    },[color])
+ 
+  console.log("color",color)
   return (
     <div id="sketch">
+      <div style ={{display:'flex'}}>
+        <Typography>Choose your favourite color & start discussing : </Typography>
+        <input type ='color' value ={color} onChange ={(e) =>setColor(e.target.value)}  />
+      </div>
       <canvas
         className="board"
         id="board"

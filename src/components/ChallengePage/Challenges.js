@@ -111,6 +111,17 @@ function Challenges() {
     setSettingOptions((prev) => !prev);
   };
 
+
+  const handleSave = () => {
+    setEditortheme(editortheme);
+    setKeyBind(keyBind);
+    setTabs(tabs);
+    setSettingOptions(prev => !prev);
+  };
+
+
+  
+
   // This code for tab section
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -161,7 +172,7 @@ function Challenges() {
     setisClicked(true);
   };
 
-  console.log(selectedLang);
+ 
 
   return (
     <React.Fragment>
@@ -343,7 +354,7 @@ function Challenges() {
               >
                 Cancel
               </Button>
-              <Button variant="contained" color="primary">
+              <Button variant="contained" color="primary" onClick ={handleSave}>
                 Save
               </Button>
             </DialogActions>

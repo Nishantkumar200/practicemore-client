@@ -153,6 +153,18 @@ function Meeting() {
     setSettingOptions((prev) => !prev);
   };
 
+  const handleSave = () => {
+    setEditortheme(editortheme);
+    setKeyBind(keyBind);
+    setTabs(tabs);
+    setSettingOptions(prev => !prev);
+  };
+
+  const handleCancel = ()  =>{
+    setSettingOptions(true);
+
+  }
+
   // This code for tab section
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -187,12 +199,6 @@ function Meeting() {
     };
   }
 
-  useEffect(() => {
-    dispatch(FetchQuestion(id));
-    var firepadRef = getExampleRef();
-    var firepad = firepadInstance.fromACE(firepadRef, refName?.current?.editor);
-    console.log(firepad);
-  }, [dispatch, id,firepadInstance]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -206,7 +212,15 @@ function Meeting() {
     setisClicked(true);
   };
 
-  console.log(selectedLang);
+  useEffect(() => {
+    dispatch(FetchQuestion(id));
+    var firepadRef = getExampleRef();
+    var firepad = firepadInstance.fromACE(firepadRef, refName?.current?.editor);
+    console.log(firepad);
+  }, [dispatch, id,firepadInstance]);
+
+  
+
 
   return (
     <React.Fragment>
@@ -405,13 +419,13 @@ function Meeting() {
             </DialogContent>
             <DialogActions>
               <Button
-                onClick={() => setSettingOptions((prev) => !prev)}
+                onClick={handleCancel}
                 color="secondary"
                 variant="outlined"
               >
                 Cancel
               </Button>
-              <Button variant="contained" color="primary">
+              <Button variant="contained" color="primary" onClick ={handleSave}>
                 Save
               </Button>
             </DialogActions>

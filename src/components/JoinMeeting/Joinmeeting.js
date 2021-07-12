@@ -156,7 +156,16 @@ function Challenges() {
     setPracticeFrndDialog((prev) => !prev);
   };
 
-  // For Real time collaboration
+  const handleSave = () => {
+    setEditortheme(editortheme);
+    setKeyBind(keyBind);
+    setTabs(tabs);
+    setSettingOptions((prev) => !prev);
+  };
+
+  const handleCancel = () => {
+    setSettingOptions(true);
+  };
 
   function getExampleRef() {
     var ref = firebase.database().ref();
@@ -286,12 +295,13 @@ function Challenges() {
             maxWidth="sm"
             onEscapeKeyDown
           >
-            <DialogTitle id=""></DialogTitle>
+            <DialogTitle id="">
+              {" "}
+              <Typography variant="h5">Code Editor Setting</Typography>
+              <hr />
+            </DialogTitle>
             <DialogContent>
               <DialogContentText>
-                <Typography variant="h5">Code Editor Setting</Typography>
-                <hr />
-
                 <Grid container>
                   <Grid item className="themeContainer">
                     <div>
@@ -382,13 +392,13 @@ function Challenges() {
             </DialogContent>
             <DialogActions>
               <Button
-                onClick={() => setSettingOptions((prev) => !prev)}
+                onClick={handleCancel}
                 color="secondary"
                 variant="outlined"
               >
                 Cancel
               </Button>
-              <Button variant="contained" color="primary">
+              <Button variant="contained" color="primary" onClick={handleSave}>
                 Save
               </Button>
             </DialogActions>
@@ -401,8 +411,8 @@ function Challenges() {
             onClose={() => setDiscussionPanel((prev) => !prev)}
             aria-labelledby=""
             fullScreen
+            maxWidth="lg"
           >
-            <DialogTitle id=""></DialogTitle>
             <DialogContent>
               <AppBar position="relative" color="primary">
                 <ToolBar>
@@ -412,15 +422,23 @@ function Challenges() {
                   >
                     <CloseIcon />
                   </IconButton>
-                  <Typography>Canvas Board</Typography>
+                  <Typography><BorderColorIcon />Writing Pad</Typography>
                 </ToolBar>
               </AppBar>
 
               <Board />
-            </DialogContent>
+            </DialogContent>{" "}
+            */
           </Dialog>
           {/* Code editor */}
-          <Grid item xl={12} lg={12} md={12} sm={12}>
+          <Grid
+            item
+            xl={12}
+            lg={12}
+            md={6}
+            sm={12}
+            style={{ marginTop: "10px" }}
+          >
             <Grid container>
               <Grid item>
                 <Grid

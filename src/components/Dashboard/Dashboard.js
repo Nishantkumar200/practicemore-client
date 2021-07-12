@@ -60,7 +60,6 @@ function Dashboard() {
   const [practice, setPractice] = useState("");
 
   const todayDate = new Date();
-  console.log(todayDate);
 
   const allAvailableForPractice = [
     "Datastructure",
@@ -71,6 +70,7 @@ function Dashboard() {
 
   // For Scheduling the meeting
   const handleSubmit = () => {
+    console.log(practice)
     dispatch(scheduleMeeting(userDetail?.id, practice, selectedDate));
     setModalstate((prevState) => !prevState);
     setTimeout(() => {
@@ -92,6 +92,7 @@ function Dashboard() {
     dispatch(findAllMeeting(userDetail?.id));
     document.title = "Dashboard";
   }, [dispatch, userDetail?.id]);
+
 
   return (
     <React.Fragment>
