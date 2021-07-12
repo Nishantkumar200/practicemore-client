@@ -12,6 +12,12 @@ import { Backdrop, CircularProgress } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import { GoogleLogin } from "react-google-login";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import { OutlinedInput, InputAdornment } from "@material-ui/core";
+import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import IconButton from "@material-ui/core/IconButton";
 
 function Signup() {
   const dispatch = useDispatch();
@@ -28,36 +34,43 @@ function Signup() {
     password: "",
     confirmPassword: "",
   };
+  const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState(initialState);
 
   const { loading, userSignup } = useSelector((state) => state.registerauth);
 
   //For handling Multiple Input Value
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (props) => (e) => {
+    setFormData({ ...formData, [props]: e.target.value });
   };
 
   const handleSignUp = (e) => {
     e.preventDefault();
-    dispatch(SIGNUP(formData, history));
+    dispatch(
+      SIGNUP(
+        formData?.username,
+        formData?.email,
+        formData?.password,
+        formData?.confirmPassword,
+        history
+      )
+    );
+  };
+
+  const handleClick = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
   };
 
   //sign up with google
 
   const responseGoogle = (response) => {
-    console.log(response?.profileObj);
     const { name, email, googleId } = response?.profileObj;
-    console.log(name, email, googleId);
-    setFormData({
-      ...formData,
-      username: name,
-      email: email,
-      password: googleId,
-      confirmPassword: googleId,
-    });
-
-    dispatch(SIGNUP(formData, history));
+    dispatch(SIGNUP(name, email, googleId, googleId, history));
   };
   useEffect(() => {
     document.title = "Sign Up ";
@@ -70,8 +83,7 @@ function Signup() {
             alignItems: "center",
             textDecoration: "none",
             display: "flex",
-            marginTop: "20px",
-            marginBottom: "25px",
+            padding: "25px",
           }}
         >
           <ArrowBackIcon />
@@ -89,6 +101,7 @@ function Signup() {
             alignItems="center"
             direction="row"
             style={{ marginTop: "10%" }}
+            justify="space-between"
           >
             <Grid item md={6} lg={6} sm={12}>
               <img src="../../../assets/signup.jpg" alt="sideImage" />
@@ -97,16 +110,133 @@ function Signup() {
               <Typography className="login_header">
                 Create an account{" "}
               </Typography>
-              <Typography>To keep track your record , join now !</Typography>
+              <Typography variant="subtitle1" style={{ marginBottom: "8px" }}>
+                To keep track your record , join now !
+              </Typography>
               {userSignup?.message ? (
                 <Alert
                   severity="error"
-                  style={{ marginTop: "10px", marginBottom: "10px" }}
+                  style={{
+                    marginTop: "10px",
+                    marginBottom: "10px",
+                    width: "400px",
+                  }}
                 >
                   {userSignup?.message}
                 </Alert>
               ) : null}
-              <form>
+
+              <Grid container spacing={1}>
+                <Grid item>
+                  <FormControl variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-password">
+                      Full Name
+                    </InputLabel>
+                    <OutlinedInput
+                      autoFocus
+                      required
+                      value={formData.username}
+                      id="outlined-adornment-password"
+                      type="text"
+                      onChange={handleChange("username")}
+                      labelWidth={80}
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item>
+                  <FormControl variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-password">
+                      Email
+                    </InputLabel>
+                    <OutlinedInput
+                      required
+                      id="outlined-adornment-password"
+                      type="email"
+                      onChange={handleChange("email")}
+                      labelWidth={40}
+                      value={formData.email}
+                    />
+                  </FormControl>
+                </Grid>
+              </Grid>
+
+              <FormControl
+                variant="outlined"
+                style={{
+                  width: "428px",
+                  marginTop: "8px",
+                  marginBottom: "5px",
+                }}
+              >
+                <InputLabel htmlFor="outlined-adornment-password">
+                  Password
+                </InputLabel>
+                <OutlinedInput
+                  required
+                  id="outlined-adornment-password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={handleChange("password")}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        edge="end"
+                        onClick={handleClick}
+                        onMouseDown={handleMouseDownPassword}
+                      >
+                        {showPassword ? (
+                          <VisibilityIcon />
+                        ) : (
+                          <VisibilityOffIcon />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  labelWidth={80}
+                />
+              </FormControl>
+
+              <FormControl
+                variant="outlined"
+                style={{
+                  width: "428px",
+                  marginTop: "3px",
+                  marginBottom: "5px",
+                }}
+              >
+                <InputLabel htmlFor="outlined-adornment-password">
+                  Confirm Password
+                </InputLabel>
+                <OutlinedInput
+                  required
+                  id="outlined-adornment-password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={handleChange("confirmPassword")}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        edge="end"
+                        onClick={handleClick}
+                        onMouseDown={handleMouseDownPassword}
+                      >
+                        {showPassword ? (
+                          <VisibilityIcon />
+                        ) : (
+                          <VisibilityOffIcon />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  labelWidth={150}
+                />
+              </FormControl>
+
+              <br />
+
+              {/* <form>
                 <TextField
                   type="text"
                   name="username"
@@ -151,23 +281,22 @@ function Signup() {
                   onChange={handleChange}
                   className="field"
                   fullWidth
-                />
-
-                <br />
-
-                <Button
-                  variant="contained"
-                  onClick={handleSignUp}
-                  color="primary"
-                  size="large"
-                >
-                  Sign Up
-                </Button>
-
-                <Typography style={{ marginTop: "20px" }}>
-                  Already have an account ? <Link to="/login">Login</Link>
-                </Typography>
-              </form>
+                /> */}
+              <Button
+                variant="contained"
+                onClick={handleSignUp}
+                color="primary"
+                size="large"
+                style={{ marginTop: "10px", width: "428px" }}
+              >
+                Sign Up
+              </Button>
+              <Typography style={{ marginTop: "20px" }}>
+                Already have an account ?{" "}
+                <Link to="/login" style={{ textDecoration: "none" }}>
+                  Login
+                </Link>
+              </Typography>
               <Typography style={{ textAlign: "center", marginTop: "20px" }}>
                 Or
               </Typography>

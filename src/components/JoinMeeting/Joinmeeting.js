@@ -43,7 +43,7 @@ import GroupAddIcon from "@material-ui/icons/GroupAdd";
 import AppBar from "@material-ui/core/AppBar";
 import ToolBar from "@material-ui/core/Toolbar";
 import BorderColorIcon from "@material-ui/icons/BorderColor";
-
+import SettingsEthernetIcon from "@material-ui/icons/SettingsEthernet";
 import "./joinmeeting.css";
 import SettingsIcon from "@material-ui/icons/Settings";
 import Board from "../Canvas Board/Board";
@@ -100,15 +100,22 @@ function Challenges() {
     "dart",
   ];
 
+  let regexEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
   const keyBinding = ["Standard", "Emacs", "Vim"];
 
   const tab = ["2", "4", "8"];
 
-  // const queryString = window.location.search;
-  // const lang = new URLSearchParams(queryString).get("lang");
+  //For compiling the code
   const compiled = useSelector((state) => state.executeCode);
   const { waiting } = compiled;
   const result = compiled?.compiled?.body;
+
+  // for sending meeting link
+
+  const { loading, joiningInfo } = useSelector((state) => state.joinSession);
+
+  console.log(loading, joiningInfo);
 
   // Firebase Initialization
   const config = {
@@ -151,9 +158,13 @@ function Challenges() {
     }
   };
 
-  const handleFreindMeet = (mail, history) => {
-    dispatch(joinMeeting(mail, history, meetLink));
-    setPracticeFrndDialog((prev) => !prev);
+  const handleFreindMeet = (mail, meetLink) => {
+    if (mail.match(regexEmail) && mail.length > 0) {
+      dispatch(joinMeeting(mail, meetLink));
+      setFrndEmail("");
+    } else {
+      return alert("Invalid email");
+    }
   };
 
   const handleSave = () => {
@@ -200,7 +211,8 @@ function Challenges() {
           <Dialog
             open={frndPracticeDialog}
             onClose={(e) => setPracticeFrndDialog((prev) => !prev)}
-            aria-labelledby=""
+            onEscapeKeyDown
+            onBackdropClick
           >
             <DialogTitle>
               <Grid
@@ -219,6 +231,7 @@ function Challenges() {
                   <IconButton
                     color="secondary"
                     onClick={(e) => setPracticeFrndDialog((prev) => !prev)}
+                    disabled={loading}
                   >
                     <CloseIcon />
                   </IconButton>
@@ -243,9 +256,11 @@ function Challenges() {
                 fullWidth
                 label="Email Address"
                 type="email"
+                value={frndEmail}
                 autoFocus
                 margin="dense"
                 onChange={(e) => setFrndEmail(e.target.value)}
+                disabled={loading}
               />
             </DialogContent>
             <DialogActions>
@@ -253,10 +268,13 @@ function Challenges() {
                 variant="contained"
                 color="primary"
                 size="medium"
-                startIcon={<GroupAddIcon />}
-                onClick={() => handleFreindMeet(frndEmail)}
+                startIcon={
+                  loading ? <SettingsEthernetIcon /> : <GroupAddIcon />
+                }
+                onClick={() => handleFreindMeet(frndEmail, meetLink)}
+                disabled={loading}
               >
-                Invite Freind
+                {loading ? "Sending Request..." : "Send a request"}
               </Button>
             </DialogActions>
           </Dialog>
@@ -422,7 +440,10 @@ function Challenges() {
                   >
                     <CloseIcon />
                   </IconButton>
-                  <Typography><BorderColorIcon />Writing Pad</Typography>
+                  <Typography>
+                    <BorderColorIcon />
+                    Writing Pad
+                  </Typography>
                 </ToolBar>
               </AppBar>
 
@@ -527,7 +548,7 @@ function Challenges() {
               <Grid item>
                 {/* code editor */}
                 <AceEditor
-                  mode={selectedLang === "nodejs" ? "javascript" : selectedLang}
+                  mode={selectedLang}
                   theme={editortheme}
                   onChange={setCode}
                   name="UNIQUE_ID_OF_DIV"
@@ -640,7 +661,7 @@ function Challenges() {
             color="primary"
             aria-label="add"
             className="fabposition"
-            variant="temporary"
+            variant="round"
             onClick={() => setDrawer((prev) => !prev)}
           >
             <MessageIcon />

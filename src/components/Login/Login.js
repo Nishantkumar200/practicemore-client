@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
@@ -9,15 +8,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { SIGNIN } from "../../Actions/user";
 import "./login.css";
-import { Backdrop, CircularProgress } from "@material-ui/core";
+import { Backdrop, CircularProgress, IconButton } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import { GoogleLogin } from "react-google-login";
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import { OutlinedInput, InputAdornment } from "@material-ui/core";
+import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 
 function Login() {
   const history = useHistory();
   const dispatch = useDispatch();
   const userDetail = JSON.parse(localStorage.getItem("userInfo"));
+  const [showPassword, setShowPassword] = useState(false);
   const initialLoginValue = {
     email: "",
     password: "",
@@ -27,14 +32,21 @@ function Login() {
 
   const { loading, userInfo } = useSelector((state) => state.loginauth);
 
-  const handleChange = (e) => {
+  const handleChange = (props) => (e) => {
     e.preventDefault();
-    setuserDetail({ ...userdetail, [e.target.name]: e.target.value });
+    setuserDetail({ ...userdetail, [props]: e.target.value });
   };
 
+  const handleClick = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
   const handleLogin = (e) => {
     e.preventDefault();
-    dispatch(SIGNIN(userdetail, history));
+    dispatch(SIGNIN(userdetail?.email,userdetail?.password));
     setuserDetail("");
   };
 
@@ -42,8 +54,7 @@ function Login() {
 
   const responseGoogle = (response) => {
     const { email, googleId } = response?.profileObj;
-    setuserDetail({ ...userDetail, email, password: googleId });
-      dispatch(SIGNIN(userdetail));
+    dispatch(SIGNIN(email,googleId));
   };
   useEffect(() => {
     if (userDetail?.isAuthenticated) {
@@ -62,8 +73,7 @@ function Login() {
             alignItems: "center",
             textDecoration: "none",
             display: "flex",
-            marginTop: "20px",
-            marginBottom: "25px",
+            padding:'25px'
           }}
         >
           <ArrowBackIcon />
@@ -86,7 +96,7 @@ function Login() {
             </Grid>
             <Grid item lg={6} md={6} sm={12}>
               <Typography className="login_header">Login</Typography>
-              <Typography>Welcome Back </Typography>
+              <Typography variant ="subtitle1" style={{marginBottom:'8px'}}>Welcome Back </Typography>
               {userInfo?.message ? (
                 <Alert
                   severity="error"
@@ -95,44 +105,74 @@ function Login() {
                   {userInfo?.message}
                 </Alert>
               ) : null}
-              <form>
-                <TextField
-                  type="email"
-                  name="email"
-                  label="Email"
-                  fullWidth
-                  onChange={handleChange}
-                  className="field"
-                  autoFocus={true}
-                  required
-                  size="medium"
-                />
+              <Grid
+                container
+                spacing={1}
+                alignContent="center"
+                alignItems="center"
+              >
+                <Grid item>
+                  <FormControl variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-password">
+                      Email
+                    </InputLabel>
+                    <OutlinedInput
+                      autoFocus
+                      required
+                      id="outlined-adornment-password"
+                      type="email"
+                      value={userdetail.email}
+                      onChange={handleChange("email")}
+                      labelWidth={40}
+                    />
+                  </FormControl>
+                </Grid>
 
-                <TextField
-                  type="password"
-                  name="password"
-                  label="Password"
-                  onChange={handleChange}
-                  fullWidth
-                  className="field"
-                  color="primary"
-                  required
-                  size="medium"
-                />
+                <Grid item>
+                  <FormControl variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-password">
+                      Password 
+                    </InputLabel>
+                    <OutlinedInput
+                      required
+                      id="outlined-adornment-password"
+                      type={showPassword ? "text" : "password"}
+                      value={userdetail.password}
+                      onChange={handleChange("password")}
+                      endAdornment={
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            edge="end"
+                            onClick={handleClick}
+                            onMouseDown={handleMouseDownPassword}
+                          >
+                            {showPassword ? (
+                              <VisibilityIcon />
+                            ) : (
+                              <VisibilityOffIcon />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      }
+                      labelWidth={70}
+                    />
+                  </FormControl>
+                </Grid>
+              </Grid>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleLogin}
+                size="large"
+                style={{marginTop:"10px",width:"473px"}}
+              >
+                Login
+              </Button>
 
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleLogin}
-                  size="large"
-                >
-                  Login
-                </Button>
-
-                <Typography className="register">
-                  Not registered yet ? <Link to="/signup">Register Now</Link>
-                </Typography>
-              </form>
+              <Typography className="register">
+                Not registered yet ? <Link to="/signup" style={{textDecoration:'none'}}>Register Now</Link>
+              </Typography>
 
               <Typography style={{ textAlign: "center", marginTop: "20px" }}>
                 Or
@@ -144,7 +184,7 @@ function Login() {
                 onFailure={responseGoogle}
                 buttonText="Login with google"
                 cookiePolicy={"single_host_origin"}
-                className="googlebtn"
+                
               />
             </Grid>
           </Grid>

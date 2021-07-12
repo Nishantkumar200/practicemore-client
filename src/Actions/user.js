@@ -2,8 +2,9 @@ import axios from "axios";
 import { URL } from "../URL/url";
 
 export const SIGNUP =
-  ({ username, email, password, confirmPassword }, history) =>
+  ( username, email, password, confirmPassword , history) =>
   async (dispatch) => {
+    // console.log(username, password, email);
     dispatch({
       type: "REGISTER_USER_REQUEST",
       payload: {
@@ -40,10 +41,10 @@ export const SIGNUP =
   };
 
 export const SIGNIN =
-  ({ email, password }) =>
+  ( email, password) =>
   async (dispatch) => {
-    console.log(email, password);
 
+    // console.log(email,password)
     dispatch({ type: "LOGIN_REQUEST", payload: { email, password } });
 
     try {
@@ -249,6 +250,8 @@ export const joinMeeting = (mail, meetLink) => async (dispatch) => {
       type: "CONNECT_TO_FRND_REQUEST_SUCCESS",
       payload: { data },
     });
+
+    console.log(data);
   } catch (error) {
     console.log(error);
   }
