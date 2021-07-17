@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useRef } from "react";
+import React, { useState } from "react";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import { Link } from "react-router-dom";
@@ -21,10 +21,9 @@ import "ace-builds/src-noconflict/theme-solarized_dark";
 import "ace-builds/src-noconflict/theme-solarized_light";
 import "ace-builds/src-noconflict/theme-terminal";
 import "ace-builds/src-noconflict/ext-language_tools";
-import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { executeProgram, FetchQuestion } from "../../Actions/user";
-import Loading from "../Loading/Loading";
+import { executeProgram } from "../../Actions/user";
+
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import RotateLeftIcon from "@material-ui/icons/RotateLeft";
 import Dialog from "@material-ui/core/Dialog";
@@ -38,25 +37,14 @@ import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import CloseIcon from "@material-ui/icons/Close";
 import IconButton from "@material-ui/core/IconButton";
-import Board from "../Canvas Board/Board";
-import "./meeting.css";
 import SettingsIcon from "@material-ui/icons/Settings";
-import firebase from "firebase";
-import firepad from "firepad";
-import  AppBar from "@material-ui/core/AppBar";
-import ToolBar from '@material-ui/core/Toolbar';
-import BorderColorIcon from "@material-ui/icons/BorderColor";
-function Meeting() {
+
+function Tryout() {
   const [value, setValue] = useState(0);
   const [code, setCode] = useState("");
-  const { id } = useParams();
-  const [discussionPanel, setDiscussionPanel] = useState(false);
-  const refName = useRef();
-  const firepadInstance = firepad;
   const dispatch = useDispatch();
   const [openDialog, setOpenDialog] = useState(false);
   const [settingOptions, setSettingOptions] = useState(false);
-  const questionInfo = useSelector((state) => state.questionInfo);
   const [selectedLang, setSelectedLang] = useState("nodejs");
   const [editortheme, setEditortheme] = useState("github");
   const [keyBind, setKeyBind] = useState("Standard");
@@ -92,44 +80,8 @@ function Meeting() {
 
   const keyBinding = ["Standard", "Emacs", "Vim"];
 
-  const tab = ["2", "4", "8"];
-
-  // Firebase Initialization
-  const config = {
-    apiKey: "AIzaSyAE8uc22tk0mIC0wrYwrba9NmBi_MHHmC4",
-    authDomain: "firepad-gh-tests.firebaseapp.com",
-    databaseURL: "https://firepad-gh-tests.firebaseio.com",
-  };
-
-  if (firebase.apps.length === 0) {
-    firebase.initializeApp(config);
-  }
-
-
-   // For Real time collaboration
-
-   function getExampleRef() {
-    var ref = firebase.database().ref();
-    var hash = window.location.hash.replace(/#/g, "");
-    if (hash) {
-      ref = ref.child(hash);
-    } else {
-      ref = ref.push(); // generate unique location.
-      window.location = window.location + "#" + ref.key; // add it as a hash to the URL.
-    }
-    if (typeof console !== "undefined") {
-      console.log("Firebase data: ", ref.toString());
-    }
-    return ref;
-  }
-
-
-
-
-  // const [programminglanguage, setProgrammingLanguage] = useState();
-  const { loading, questionDetail } = questionInfo;
-  // const queryString = window.location.search;
-  // const lang = new URLSearchParams(queryString).get("lang");
+  const tab = ["2", "4", "8"]
+ 
   const compiled = useSelector((state) => state.executeCode);
   const { waiting } = compiled;
   const result = compiled?.compiled?.body;
@@ -150,6 +102,7 @@ function Meeting() {
     setSettingOptions((prev) => !prev);
   };
 
+
   const handleSave = () => {
     setEditortheme(editortheme);
     setKeyBind(keyBind);
@@ -157,10 +110,8 @@ function Meeting() {
     setSettingOptions(prev => !prev);
   };
 
-  const handleCancel = ()  =>{
-    setSettingOptions(true);
 
-  }
+  
 
   // This code for tab section
   function TabPanel(props) {
@@ -195,8 +146,6 @@ function Meeting() {
       "aria-controls": `full-width-tabpanel-${index}`,
     };
   }
-
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -209,43 +158,12 @@ function Meeting() {
     setisClicked(true);
   };
 
-  useEffect(() => {
-    dispatch(FetchQuestion(id));
-    var firepadRef = getExampleRef();
-    var firepad = firepadInstance.fromACE(firepadRef, refName?.current?.editor);
-    console.log(firepad);
-  }, [dispatch, id,firepadInstance]);
-
-  
-
+ 
 
   return (
     <React.Fragment>
-        <Dialog
-            open={discussionPanel}
-            onClose={() => setDiscussionPanel((prev) => !prev)}
-            aria-labelledby=""
-            fullScreen
-          >
-            <DialogTitle id=""></DialogTitle>
-            <DialogContent>
-              <AppBar position="relative" color="primary">
-                <ToolBar>
-                  <IconButton
-                    onClick={() => setDiscussionPanel((prev) => !prev)}
-                    color="secondary"
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                  <Typography>Canvas Board</Typography>
-                </ToolBar>
-              </AppBar>
-
-              <Board  />
-            </DialogContent>
-          </Dialog>
       <Container maxWidth="xl" className="mainContainer">
-        <Link to="/dashboard" style={{ textDecoration: "none" }}>
+        <Link to="/" style={{ textDecoration: "none" }}>
           <Typography
             style={{
               alignItems: "center",
@@ -256,7 +174,7 @@ function Meeting() {
             }}
           >
             <ArrowBackIcon />
-            Dashboard
+            Go back
           </Typography>
         </Link>
         <Grid container>
@@ -275,13 +193,13 @@ function Meeting() {
             </Tabs>
 
             <TabPanel value={value} index={0}>
-             {loading ? <Loading /> : `${questionDetail?.question}`}
+             Question
             </TabPanel>
             <TabPanel value={value} index={1} style={{ textAlign: "justify" }}>
-             {questionDetail?.hints}
+            Hints
             </TabPanel>
             <TabPanel value={value} index={2}>
-              {questionDetail?.answer}
+             Answer
             </TabPanel>
           </Grid>
 
@@ -416,7 +334,7 @@ function Meeting() {
             </DialogContent>
             <DialogActions>
               <Button
-                onClick={handleCancel}
+                onClick={() => setSettingOptions((prev) => !prev)}
                 color="secondary"
                 variant="outlined"
               >
@@ -493,16 +411,6 @@ function Meeting() {
                       Reset
                     </Button>
                   </Grid>
-                  <Grid item>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      onClick={() => setDiscussionPanel((prev) => !prev)}
-                      startIcon={<BorderColorIcon />}
-                    >
-                      Discussion Board
-                    </Button>
-                  </Grid>
                 </Grid>
               </Grid>
               <Grid item>
@@ -519,14 +427,12 @@ function Meeting() {
                     enableSnippets: true,
                     showLineNumbers: true,
                     tabSize: { tabs },
-
                   }}
                   keyboardHandler={keyBind}
                   width="65vw"
                   height="78vh"
                   value={code}
                   fontSize="14"
-                  ref ={refName}
                 />
               </Grid>
               <Grid item className={isClicked ? "show" : "hide"}>
@@ -575,4 +481,4 @@ function Meeting() {
   );
 }
 
-export default Meeting;
+export default Tryout;

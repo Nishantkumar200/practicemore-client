@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import AceEditor from "react-ace";
@@ -48,11 +48,18 @@ import "./joinmeeting.css";
 import SettingsIcon from "@material-ui/icons/Settings";
 import Board from "../Canvas Board/Board";
 import { URL } from "../../URL/url";
+import VideocamIcon from "@material-ui/icons/Videocam";
+import FilterTiltShiftIcon from "@material-ui/icons/FilterTiltShift";
+import Video from "twilio-video";
+import axios from "axios";
+import Room from "../../Room";
+import CallEndIcon from "@material-ui/icons/CallEnd";
 
 function Challenges() {
   const socket = io(URL);
   const meetLink = window.location.href;
   const [frndEmail, setFrndEmail] = useState("");
+  const [color, setColor] = useState();
   const [discussionPanel, setDiscussionPanel] = useState(false);
   const refName = useRef();
   const firepadInstance = firepad;
@@ -60,18 +67,23 @@ function Challenges() {
   const [message, setMessage] = useState();
   const [msgshow, setmsgShow] = useState();
   const [frndPracticeDialog, setPracticeFrndDialog] = useState(false);
-
+  const [showVideoInvite, setShowVideoInvite] = useState(false);
   const [code, setCode] = useState("");
-
   const dispatch = useDispatch();
   const [openDialog, setOpenDialog] = useState(false);
   const [settingOptions, setSettingOptions] = useState(false);
-
   const [selectedLang, setSelectedLang] = useState("nodejs");
   const [editortheme, setEditortheme] = useState("github");
   const [keyBind, setKeyBind] = useState("Standard");
   const [tabs, setTabs] = useState(2);
   const [isClicked, setisClicked] = useState(false);
+
+  // for Video Chatting
+  const [username, setUsername] = useState("");
+  const [roomName, setRoomName] = useState("");
+  const [room, setRoom] = useState(null);
+  const [connecting, setConnecting] = useState(false);
+
   const themes = [
     "monokai",
     "github",
@@ -175,7 +187,7 @@ function Challenges() {
   };
 
   const handleCancel = () => {
-    setSettingOptions(true);
+    setSettingOptions((prev) => !prev);
   };
 
   function getExampleRef() {
@@ -202,6 +214,68 @@ function Challenges() {
     var firepad = firepadInstance.fromACE(firepadRef, refName?.current?.editor);
     console.log(firepad);
   }, [firepadInstance]);
+
+  const handleSubmit = useCallback(
+    async (event) => {
+      event.preventDefault();
+      setConnecting(true);
+      const { data } = await axios.post(`${URL}/video/token`, {
+        identity: username,
+        room: roomName,
+      });
+      console.log(data);
+
+      Video.connect(data.token, {
+        name: roomName,
+      })
+        .then((room) => {
+          setConnecting(false);
+          setRoom(room);
+        })
+        .catch((err) => {
+          console.error(err);
+          setConnecting(false);
+        });
+    },
+    [roomName, username]
+  );
+
+  // handle logout
+  const handleLogout = useCallback(() => {
+    setRoom((prevRoom) => {
+      if (prevRoom) {
+        prevRoom.localParticipant.tracks.forEach((trackPub) => {
+          trackPub.track.stop();
+        });
+        prevRoom.disconnect();
+      }
+      return null;
+    });
+
+  localStorage.clear()
+  }, []);
+
+  useEffect(() => {
+    if (room) {
+      const tidyUp = (event) => {
+        if (event.persisted) {
+          return;
+        }
+        if (room) {
+          handleLogout();
+        }
+      };
+      window.addEventListener("pagehide", tidyUp);
+      window.addEventListener("beforeunload", tidyUp);
+      return () => {
+        window.removeEventListener("pagehide", tidyUp);
+        window.removeEventListener("beforeunload", tidyUp);
+      };
+    }
+  }, [room, handleLogout]);
+
+  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  console.log(userInfo)
   return (
     <React.Fragment>
       <Container maxWidth="xl" className="mainContainer">
@@ -278,13 +352,103 @@ function Challenges() {
               </Button>
             </DialogActions>
           </Dialog>
+
+          {/* For Start video Call */}
+          <Dialog
+            open={showVideoInvite}
+            onClose={(e) => setShowVideoInvite((prev) => !prev)}
+            onEscapeKeyDown
+            onBackdropClick
+          >
+            <DialogTitle>
+              <Grid
+                container
+                style={{
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Grid item>
+                  <Typography variant="body-1">
+                    Create a room to start instant video meeting .
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <IconButton
+                    color="secondary"
+                    onClick={(e) => setShowVideoInvite((prev) => !prev)}
+                    disabled={loading}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </Grid>
+              </Grid>
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                <Typography variant="h6">
+                  Know someone you'd like to practice with? Send them an invite!
+                </Typography>
+
+                <Typography>
+                  Your session will begin as soon as you send out the invite,
+                  and will remain available for 2 hours, or until one of you
+                  decides to end the session.
+                </Typography>
+              </DialogContentText>
+
+              <TextField
+                rows={1}
+                fullWidth
+                label="Your Name"
+                type="text"
+                value={username}
+                autoFocus
+                onChange={(e) => setUsername(e.target.value)}
+                disabled={connecting}
+                style={{ marginBottom: "20px" }}
+              />
+              <TextField
+                rows={1}
+                fullWidth
+                label="Room Name"
+                type="text"
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
+                disabled={connecting}
+                helperText={`Say ${roomName} name to join this room`}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button variant="contained" color="secondary">
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                size="medium"
+                startIcon={
+                  connecting ? (
+                    <SettingsEthernetIcon />
+                  ) : (
+                    <FilterTiltShiftIcon />
+                  )
+                }
+                onClick={handleSubmit}
+                disabled={connecting}
+              >
+                {connecting ? "Joining..." : "Join"}
+              </Button>
+            </DialogActions>
+          </Dialog>
+
           {/*  for resseting the code */}
           <Dialog
             open={openDialog}
             onClose={(e) => setOpenDialog((prevState) => !prevState)}
             onEscapeKeyDown
           >
-            <DialogTitle id="">Are you sure</DialogTitle>
+            <DialogTitle id="">Do you want to clear the code ?</DialogTitle>
             <DialogContent>
               <DialogContentText variant="subtitle1">
                 Resetting the code will lose all current changes . Are you sure
@@ -296,10 +460,16 @@ function Challenges() {
                 onClick={(e) => setOpenDialog((prevState) => !prevState)}
                 color="secondary"
                 variant="outlined"
+                size="small"
               >
                 Cancel
               </Button>
-              <Button color="primary" variant="contained" onClick={resetCode}>
+              <Button
+                color="primary"
+                variant="contained"
+                onClick={resetCode}
+                size="small"
+              >
                 Confirm
               </Button>
             </DialogActions>
@@ -413,10 +583,16 @@ function Challenges() {
                 onClick={handleCancel}
                 color="secondary"
                 variant="outlined"
+                size="small"
               >
                 Cancel
               </Button>
-              <Button variant="contained" color="primary" onClick={handleSave}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSave}
+                size="small"
+              >
                 Save
               </Button>
             </DialogActions>
@@ -440,14 +616,37 @@ function Challenges() {
                   >
                     <CloseIcon />
                   </IconButton>
-                  <Typography>
-                    <BorderColorIcon />
-                    Writing Pad
-                  </Typography>
+                  <div
+                    style={{
+                      display: "inline-block",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Typography>
+                      <BorderColorIcon />
+                      Writing Pad
+                    </Typography>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginLeft: "10px",
+                      }}
+                    >
+                      <Typography>
+                        Choose your favourite color & start discussing :{" "}
+                      </Typography>
+                      <input
+                        type="color"
+                        value={color}
+                        onChange={(e) => setColor(e.target.value)}
+                      />
+                    </div>
+                  </div>
                 </ToolBar>
               </AppBar>
-
-              <Board />
+              <Board color={color} />
             </DialogContent>{" "}
             */
           </Dialog>
@@ -475,6 +674,8 @@ function Challenges() {
                       onClick={handleRunCode}
                       startIcon={waiting ? <LoopIcon /> : <PlayArrowIcon />}
                       disableElevation
+                      disabled={code.length > 0 ? false : true}
+                      size="small"
                     >
                       {waiting ? "Executing..." : "Run Code"}
                     </Button>
@@ -504,10 +705,10 @@ function Challenges() {
                       variant="contained"
                       color="primary"
                       onClick={handleSetting}
-                      startIcon={<SettingsIcon />}
                       disableElevation
+                      size="small"
                     >
-                      customize editor
+                      <SettingsIcon />
                     </Button>
                   </Grid>
                   <Grid item>
@@ -517,6 +718,8 @@ function Challenges() {
                       startIcon={<RotateLeftIcon />}
                       onClick={Reset}
                       disableElevation
+                      size="small"
+                      disabled={code.length > 0 ? false : true}
                     >
                       Reset
                     </Button>
@@ -524,10 +727,12 @@ function Challenges() {
 
                   <Grid item>
                     <Button
+                      size="small"
                       variant="outlined"
                       color="primary"
                       startIcon={<ShareIcon />}
                       onClick={() => setPracticeFrndDialog((prev) => !prev)}
+                     disabled ={userInfo?.isAuthenticated ? false:true}
                     >
                       Share link
                     </Button>
@@ -539,14 +744,40 @@ function Challenges() {
                       color="primary"
                       onClick={() => setDiscussionPanel((prev) => !prev)}
                       startIcon={<BorderColorIcon />}
+                      size="small"
                     >
-                      Discussion Board
+                      Jamboard
+                    </Button>
+                  </Grid>
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={
+                        room
+                          ? handleLogout
+                          : () => setShowVideoInvite((prev) => !prev)
+                      }
+                      startIcon={room ? <CallEndIcon color="secondary" /> : <VideocamIcon />}
+                      size="small"
+                    >
+                      {room ? "End session" : "Video Chat"}
                     </Button>
                   </Grid>
                 </Grid>
               </Grid>
               <Grid item>
                 {/* code editor */}
+                <div className="videoChat">
+                  {room ? (
+                    <Room
+                      roomName={roomName}
+                      room={room}
+                      handleLogout={handleLogout}
+                    />
+                  ) : null}
+                </div>
+
                 <AceEditor
                   mode={selectedLang}
                   theme={editortheme}

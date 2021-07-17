@@ -135,6 +135,7 @@ function Dashboard() {
             color="primary"
             onClick={() => setModalstate((prevState) => !prevState)}
             style={{ marginTop: "50px" }}
+            size="large"
           >
             Start Your Practice Session
           </Button>

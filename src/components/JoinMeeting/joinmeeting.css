@@ -100,3 +100,9 @@
   padding: 10px !important;
   z-index: 999 !important;
 }
+
+.videoChat{
+  z-index: 999;
+  position:absolute;
+  right:0
+}
