@@ -193,13 +193,13 @@ function Tryout() {
             </Tabs>
 
             <TabPanel value={value} index={0}>
-             Question
+            Question will be here in real interview
             </TabPanel>
             <TabPanel value={value} index={1} style={{ textAlign: "justify" }}>
-            Hints
+            Hints will be here in real interview
             </TabPanel>
             <TabPanel value={value} index={2}>
-             Answer
+            Answer will be here in real interview
             </TabPanel>
           </Grid>
 

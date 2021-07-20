@@ -17,6 +17,8 @@ import { OutlinedInput, InputAdornment } from "@material-ui/core";
 import VisibilityOffIcon from "@material-ui/icons/VisibilityOff";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import IconButton from "@material-ui/core/IconButton";
+import "./signup.css";
+import Verifier from "email-verifier";
 
 function Signup() {
   const dispatch = useDispatch();
@@ -34,10 +36,9 @@ function Signup() {
     confirmPassword: "",
   };
   const [showPassword, setShowPassword] = useState(false);
-
   const [formData, setFormData] = useState(initialState);
-
   const { loading, userSignup } = useSelector((state) => state.registerauth);
+  const verifier = new Verifier("at_NuHUsCOHZM9I4Ov1xkdzU8aOLOlXf");
 
   //For handling Multiple Input Value
   const handleChange = (props) => (e) => {
@@ -46,15 +47,25 @@ function Signup() {
 
   const handleSignUp = (e) => {
     e.preventDefault();
-    dispatch(
-      SIGNUP(
-        formData?.username,
-        formData?.email,
-        formData?.password,
-        formData?.confirmPassword,
-        history
-      )
-    );
+    verifier.verify(formData?.email, (err, data) => {
+      if (err) {
+        console.log(err);
+      }
+      console.log(data);
+      if (data?.smtpCheck === "true") {
+        dispatch(
+          SIGNUP(
+            formData?.username,
+            formData?.email,
+            formData?.password,
+            formData?.confirmPassword,
+            history
+          )
+        );
+      } else {
+        return alert(" Invalid Email,Please try with another .");
+      }
+    });
   };
 
   const handleClick = () => {
@@ -103,7 +114,11 @@ function Signup() {
             justify="space-between"
           >
             <Grid item md={6} lg={6} sm={12}>
-              <img src="../../../assets/signup.jpg" alt="sideImage" />
+              <img
+                src="../../../assets/signup.jpg"
+                alt="sideImage"
+                className="signupImg"
+              />
             </Grid>
             <Grid item md={6} lg={6} sm={12}>
               <Typography className="login_header">
@@ -113,20 +128,13 @@ function Signup() {
                 To keep track your record , join now !
               </Typography>
               {userSignup?.message ? (
-                <Alert
-                  severity="error"
-                  style={{
-                    marginTop: "10px",
-                    marginBottom: "10px",
-                    width: "400px",
-                  }}
-                >
+                <Alert severity="error" style={{ marginBottom: "15px" }}>
                   {userSignup?.message}
                 </Alert>
               ) : null}
 
               <Grid container spacing={1}>
-                <Grid item>
+                <Grid item md={6} sm={12} xs={12} lg={6} alignItems="center">
                   <FormControl variant="outlined">
                     <InputLabel htmlFor="outlined-adornment-password">
                       Full Name
@@ -139,10 +147,11 @@ function Signup() {
                       type="text"
                       onChange={handleChange("username")}
                       labelWidth={80}
+                      className="field"
                     />
                   </FormControl>
                 </Grid>
-                <Grid item>
+                <Grid item md={6} sm={12} xs={12} lg={6} alignItems="center">
                   <FormControl variant="outlined">
                     <InputLabel htmlFor="outlined-adornment-password">
                       Email
@@ -154,139 +163,82 @@ function Signup() {
                       onChange={handleChange("email")}
                       labelWidth={40}
                       value={formData.email}
+                      className="field"
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item md={6} sm={12} xs={12} lg={6} alignItems="center">
+                  <FormControl variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-password">
+                      Password
+                    </InputLabel>
+                    <OutlinedInput
+                      required
+                      id="outlined-adornment-password"
+                      type={showPassword ? "text" : "password"}
+                      value={formData.password}
+                      className="field"
+                      onChange={handleChange("password")}
+                      endAdornment={
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            edge="end"
+                            onClick={handleClick}
+                            onMouseDown={handleMouseDownPassword}
+                          >
+                            {showPassword ? (
+                              <VisibilityIcon />
+                            ) : (
+                              <VisibilityOffIcon />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      }
+                      labelWidth={80}
+                    />
+                  </FormControl>
+                </Grid>
+
+                <Grid md={6} sm={12} xs={12} lg={6} alignItems="center">
+                  <FormControl variant="outlined">
+                    <InputLabel htmlFor="outlined-adornment-password">
+                      Confirm Password
+                    </InputLabel>
+                    <OutlinedInput
+                      className="field"
+                      required
+                      id="outlined-adornment-password"
+                      type={showPassword ? "text" : "password"}
+                      value={formData.confirmPassword}
+                      onChange={handleChange("confirmPassword")}
+                      endAdornment={
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            edge="end"
+                            onClick={handleClick}
+                            onMouseDown={handleMouseDownPassword}
+                          >
+                            {showPassword ? (
+                              <VisibilityIcon />
+                            ) : (
+                              <VisibilityOffIcon />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      }
+                      labelWidth={150}
                     />
                   </FormControl>
                 </Grid>
               </Grid>
 
-              <FormControl
-                variant="outlined"
-                style={{
-                  width: "428px",
-                  marginTop: "8px",
-                  marginBottom: "5px",
-                }}
-              >
-                <InputLabel htmlFor="outlined-adornment-password">
-                  Password
-                </InputLabel>
-                <OutlinedInput
-                  required
-                  id="outlined-adornment-password"
-                  type={showPassword ? "text" : "password"}
-                  value={formData.password}
-                  onChange={handleChange("password")}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        edge="end"
-                        onClick={handleClick}
-                        onMouseDown={handleMouseDownPassword}
-                      >
-                        {showPassword ? (
-                          <VisibilityIcon />
-                        ) : (
-                          <VisibilityOffIcon />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                  labelWidth={80}
-                />
-              </FormControl>
-
-              <FormControl
-                variant="outlined"
-                style={{
-                  width: "428px",
-                  marginTop: "3px",
-                  marginBottom: "5px",
-                }}
-              >
-                <InputLabel htmlFor="outlined-adornment-password">
-                  Confirm Password
-                </InputLabel>
-                <OutlinedInput
-                  required
-                  id="outlined-adornment-password"
-                  type={showPassword ? "text" : "password"}
-                  value={formData.confirmPassword}
-                  onChange={handleChange("confirmPassword")}
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        edge="end"
-                        onClick={handleClick}
-                        onMouseDown={handleMouseDownPassword}
-                      >
-                        {showPassword ? (
-                          <VisibilityIcon />
-                        ) : (
-                          <VisibilityOffIcon />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  }
-                  labelWidth={150}
-                />
-              </FormControl>
-
-              <br />
-
-              {/* <form>
-                <TextField
-                  type="text"
-                  name="username"
-                  label="Username"
-                  required
-                  onChange={handleChange}
-                  className="field"
-                  autoFocus
-                  fullWidth
-                />
-
-                <br />
-
-                <TextField
-                  type="email"
-                  name="email"
-                  label="Email"
-                  required
-                  onChange={handleChange}
-                  className="field"
-                  fullWidth
-                />
-                <br />
-
-                <TextField
-                  type="password"
-                  name="password"
-                  label="Password"
-                  required
-                  onChange={handleChange}
-                  className="field"
-                  fullWidth
-                  helperText="Password must contain 8 characters"
-                />
-                <br />
-
-                <TextField
-                  type="password"
-                  name="confirmPassword"
-                  label="Confirm Password"
-                  required
-                  onChange={handleChange}
-                  className="field"
-                  fullWidth
-                /> */}
               <Button
                 variant="contained"
                 onClick={handleSignUp}
-                color="primary"
                 size="large"
-                style={{ marginTop: "10px", width: "428px" }}
+                className="signupBtn"
               >
                 Sign Up
               </Button>

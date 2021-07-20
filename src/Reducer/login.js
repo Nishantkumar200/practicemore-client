@@ -12,6 +12,7 @@ export const loginAuth = (user = {}, action) => {
 
     case "LOGOUT":
       localStorage.removeItem('userInfo');
+      localStorage.removeItem('meetings')
       return {userInfo:{}}
     default:
       return user;

@@ -1,9 +1,9 @@
-import React, { useEffect, useState,useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 import { Link } from "react-router-dom";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-import { Container, Button } from "@material-ui/core";
+import { Container, Button, TextField } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import PropTypes from "prop-types";
@@ -43,9 +43,17 @@ import "./meeting.css";
 import SettingsIcon from "@material-ui/icons/Settings";
 import firebase from "firebase";
 import firepad from "firepad";
-import  AppBar from "@material-ui/core/AppBar";
-import ToolBar from '@material-ui/core/Toolbar';
+import AppBar from "@material-ui/core/AppBar";
+import ToolBar from "@material-ui/core/Toolbar";
 import BorderColorIcon from "@material-ui/icons/BorderColor";
+import VideocamIcon from "@material-ui/icons/Videocam";
+import FilterTiltShiftIcon from "@material-ui/icons/FilterTiltShift";
+import CallEndIcon from "@material-ui/icons/CallEnd";
+import SettingsEthernetIcon from "@material-ui/icons/SettingsEthernet";
+import axios from "axios";
+import Video from "twilio-video";
+import Room from "../../Room";
+
 function Meeting() {
   const [value, setValue] = useState(0);
   const [code, setCode] = useState("");
@@ -62,6 +70,13 @@ function Meeting() {
   const [keyBind, setKeyBind] = useState("Standard");
   const [tabs, setTabs] = useState(2);
   const [isClicked, setisClicked] = useState(false);
+
+  const [showVideoInvite, setShowVideoInvite] = useState(false);
+  // for Video Chatting
+  const [username, setUsername] = useState("");
+  const [roomName, setRoomName] = useState("");
+  const [room, setRoom] = useState(null);
+  const [connecting, setConnecting] = useState(false);
   const themes = [
     "monokai",
     "github",
@@ -105,10 +120,9 @@ function Meeting() {
     firebase.initializeApp(config);
   }
 
+  // For Real time collaboration
 
-   // For Real time collaboration
-
-   function getExampleRef() {
+  function getExampleRef() {
     var ref = firebase.database().ref();
     var hash = window.location.hash.replace(/#/g, "");
     if (hash) {
@@ -123,13 +137,8 @@ function Meeting() {
     return ref;
   }
 
-
-
-
-  // const [programminglanguage, setProgrammingLanguage] = useState();
   const { loading, questionDetail } = questionInfo;
-  // const queryString = window.location.search;
-  // const lang = new URLSearchParams(queryString).get("lang");
+
   const compiled = useSelector((state) => state.executeCode);
   const { waiting } = compiled;
   const result = compiled?.compiled?.body;
@@ -154,13 +163,52 @@ function Meeting() {
     setEditortheme(editortheme);
     setKeyBind(keyBind);
     setTabs(tabs);
-    setSettingOptions(prev => !prev);
+    setSettingOptions((prev) => !prev);
   };
 
-  const handleCancel = ()  =>{
+  const handleCancel = () => {
     setSettingOptions(true);
+  };
 
-  }
+  const handleSubmit = useCallback(
+    async (event) => {
+      event.preventDefault();
+      setConnecting(true);
+      const { data } = await axios.post(`${URL}/video/token`, {
+        identity: username,
+        room: roomName,
+      });
+      console.log(data);
+
+      Video.connect(data.token, {
+        name: roomName,
+      })
+        .then((room) => {
+          setConnecting(false);
+          setRoom(room);
+        })
+        .catch((err) => {
+          console.error(err);
+          setConnecting(false);
+        });
+    },
+    [roomName, username]
+  );
+
+  // handle logout
+  const handleLogout = useCallback(() => {
+    setRoom((prevRoom) => {
+      if (prevRoom) {
+        prevRoom.localParticipant.tracks.forEach((trackPub) => {
+          trackPub.track.stop();
+        });
+        prevRoom.disconnect();
+      }
+      return null;
+    });
+
+    localStorage.clear();
+  }, []);
 
   // This code for tab section
   function TabPanel(props) {
@@ -175,7 +223,7 @@ function Meeting() {
         {...other}
       >
         {value === index && (
-          <Box p={1} className ="scrollCondition">
+          <Box p={1} className="scrollCondition">
             <Typography>{children}</Typography>
           </Box>
         )}
@@ -196,7 +244,6 @@ function Meeting() {
     };
   }
 
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -214,36 +261,118 @@ function Meeting() {
     var firepadRef = getExampleRef();
     var firepad = firepadInstance.fromACE(firepadRef, refName?.current?.editor);
     console.log(firepad);
-  }, [dispatch, id,firepadInstance]);
-
-  
-
+  }, [dispatch, id, firepadInstance]);
 
   return (
     <React.Fragment>
-        <Dialog
-            open={discussionPanel}
-            onClose={() => setDiscussionPanel((prev) => !prev)}
-            aria-labelledby=""
-            fullScreen
-          >
-            <DialogTitle id=""></DialogTitle>
-            <DialogContent>
-              <AppBar position="relative" color="primary">
-                <ToolBar>
-                  <IconButton
-                    onClick={() => setDiscussionPanel((prev) => !prev)}
-                    color="secondary"
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                  <Typography>Canvas Board</Typography>
-                </ToolBar>
-              </AppBar>
+      <Dialog
+        open={discussionPanel}
+        onClose={() => setDiscussionPanel((prev) => !prev)}
+        aria-labelledby=""
+        fullScreen
+      >
+        <DialogTitle id=""></DialogTitle>
+        <DialogContent>
+          <AppBar position="relative" color="primary">
+            <ToolBar>
+              <IconButton
+                onClick={() => setDiscussionPanel((prev) => !prev)}
+                color="secondary"
+              >
+                <CloseIcon />
+              </IconButton>
+              <Typography>Canvas Board</Typography>
+            </ToolBar>
+          </AppBar>
 
-              <Board  />
-            </DialogContent>
-          </Dialog>
+          <Board />
+        </DialogContent>
+      </Dialog>
+
+      {/* For Start video Call */}
+      <Dialog
+        open={showVideoInvite}
+        onClose={(e) => setShowVideoInvite((prev) => !prev)}
+        onEscapeKeyDown
+        onBackdropClick
+      >
+        <DialogTitle>
+          <Grid
+            container
+            style={{
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Grid item>
+              <Typography variant="body-1">
+                Create a room to start instant video meeting .
+              </Typography>
+            </Grid>
+            <Grid item>
+              <IconButton
+                color="secondary"
+                onClick={(e) => setShowVideoInvite((prev) => !prev)}
+                disabled={loading}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Grid>
+          </Grid>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            <Typography variant="h6">
+              Know someone you'd like to practice with? Send them an invite!
+            </Typography>
+
+            <Typography>
+              Your session will begin as soon as you send out the invite, and
+              will remain available for 2 hours, or until one of you decides to
+              end the session.
+            </Typography>
+          </DialogContentText>
+
+          <TextField
+            rows={1}
+            fullWidth
+            label="Your Name"
+            type="text"
+            value={username}
+            autoFocus
+            onChange={(e) => setUsername(e.target.value)}
+            disabled={connecting}
+            style={{ marginBottom: "20px" }}
+          />
+          <TextField
+            rows={1}
+            fullWidth
+            label="Room Name"
+            type="text"
+            value={roomName}
+            onChange={(e) => setRoomName(e.target.value)}
+            disabled={connecting}
+            helperText={`Say ${roomName} name to join this room`}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" color="secondary">
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="medium"
+            startIcon={
+              connecting ? <SettingsEthernetIcon /> : <FilterTiltShiftIcon />
+            }
+            onClick={handleSubmit}
+            disabled={connecting}
+          >
+            {connecting ? "Joining..." : "Join"}
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Container maxWidth="xl" className="mainContainer">
         <Link to="/dashboard" style={{ textDecoration: "none" }}>
           <Typography
@@ -275,10 +404,10 @@ function Meeting() {
             </Tabs>
 
             <TabPanel value={value} index={0}>
-             {loading ? <Loading /> : `${questionDetail?.question}`}
+              {loading ? <Loading /> : `${questionDetail?.question}`}
             </TabPanel>
             <TabPanel value={value} index={1} style={{ textAlign: "justify" }}>
-             {questionDetail?.hints}
+              {questionDetail?.hints}
             </TabPanel>
             <TabPanel value={value} index={2}>
               {questionDetail?.answer}
@@ -306,7 +435,7 @@ function Meeting() {
               >
                 Cancel
               </Button>
-              <Button color="primary" variant="contained" onClick={resetCode} >
+              <Button color="primary" variant="contained" onClick={resetCode}>
                 Confirm
               </Button>
             </DialogActions>
@@ -343,7 +472,6 @@ function Meeting() {
                           value={editortheme}
                           className="select"
                           onChange={(e) => setEditortheme(e.target.value)}
-                          
                         >
                           {themes.map((theme) => (
                             <MenuItem value={theme}>
@@ -422,7 +550,7 @@ function Meeting() {
               >
                 Cancel
               </Button>
-              <Button variant="contained" color="primary" onClick ={handleSave}>
+              <Button variant="contained" color="primary" onClick={handleSave}>
                 Save
               </Button>
             </DialogActions>
@@ -444,7 +572,7 @@ function Meeting() {
                       color="primary"
                       onClick={handleRunCode}
                       startIcon={waiting ? <LoopIcon /> : <PlayArrowIcon />}
-                      disabled ={code.length> 0 ? false :true}
+                      disabled={code.length > 0 ? false : true}
                     >
                       {waiting ? "Executing..." : "Run Code"}
                     </Button>
@@ -457,7 +585,7 @@ function Meeting() {
                         value={selectedLang}
                         className="langselect"
                         onChange={(e) => setSelectedLang(e.target.value)}
-                        disabled ={waiting ? true :false}
+                        disabled={waiting ? true : false}
                       >
                         {allSupportedLanguage.map((language) => (
                           <MenuItem value={language}>
@@ -476,19 +604,18 @@ function Meeting() {
                       color="primary"
                       onClick={handleSetting}
                       startIcon={<SettingsIcon />}
-                      disabled ={waiting ? true :false}
+                      disabled={waiting ? true : false}
                     >
                       customize editor
                     </Button>
                   </Grid>
                   <Grid item>
-                   
                     <Button
                       variant="contained"
                       color="secondary"
                       startIcon={<RotateLeftIcon />}
                       onClick={Reset}
-                      disabled ={code.length > 0 && !waiting ?false : true}
+                      disabled={code.length > 0 && !waiting ? false : true}
                     >
                       Reset
                     </Button>
@@ -503,10 +630,42 @@ function Meeting() {
                       Discussion Board
                     </Button>
                   </Grid>
+                  <Grid item>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={
+                        room
+                          ? handleLogout
+                          : () => setShowVideoInvite((prev) => !prev)
+                      }
+                      startIcon={
+                        room ? (
+                          <CallEndIcon color="secondary" />
+                        ) : (
+                          <VideocamIcon />
+                        )
+                      }
+                      size="small"
+                    >
+                      {room ? "End session" : "Video Chat"}
+                    </Button>
+                  </Grid>
                 </Grid>
               </Grid>
               <Grid item>
                 {/* code editor */}
+
+                {/* code editor */}
+                <div className="videoChat">
+                  {room ? (
+                    <Room
+                      roomName={roomName}
+                      room={room}
+                      handleLogout={handleLogout}
+                    />
+                  ) : null}
+                </div>
                 <AceEditor
                   mode={selectedLang === "nodejs" ? "javascript" : selectedLang}
                   theme={editortheme}
@@ -519,14 +678,13 @@ function Meeting() {
                     enableSnippets: true,
                     showLineNumbers: true,
                     tabSize: { tabs },
-
                   }}
                   keyboardHandler={keyBind}
                   width="65vw"
                   height="78vh"
                   value={code}
                   fontSize="14"
-                  ref ={refName}
+                  ref={refName}
                 />
               </Grid>
               <Grid item className={isClicked ? "show" : "hide"}>
@@ -547,12 +705,12 @@ function Meeting() {
                       <CloseIcon />
                     </IconButton>
                   </div>
-                  {result?.output? (
+                  {result?.output ? (
                     <Typography style={{ color: "white" }} variant="body2">
                       Finished in : {result?.cpuTime}s
                     </Typography>
                   ) : null}
-                  {result?.error? (
+                  {result?.error ? (
                     <Typography style={{ color: "white" }} variant="body2">
                       {result?.error}s
                     </Typography>

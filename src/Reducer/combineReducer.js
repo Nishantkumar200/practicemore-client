@@ -6,6 +6,9 @@ import { interview } from "./interview";
 import { meeting } from "./meeting";
 import { session } from "./sessionjoin";
 import { register } from "./register";
+import { forgotPassword } from "./forgotpassword";
+import { resetpassword } from "./resetpassword";
+
 
 export default combineReducers({
   loginauth: loginAuth,
@@ -14,6 +17,8 @@ export default combineReducers({
   questionInfo:fetchquestion,
   allMeetings:meeting,
   executeCode,
-  joinSession:session
+  joinSession:session,
+  forgotPassword,
+  resetpassword
   
 });

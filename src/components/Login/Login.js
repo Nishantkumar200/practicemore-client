@@ -46,7 +46,7 @@ function Login() {
   };
   const handleLogin = (e) => {
     e.preventDefault();
-    dispatch(SIGNIN(userdetail?.email,userdetail?.password));
+    dispatch(SIGNIN(userdetail?.email, userdetail?.password));
     setuserDetail("");
   };
 
@@ -54,7 +54,7 @@ function Login() {
 
   const responseGoogle = (response) => {
     const { email, googleId } = response?.profileObj;
-    dispatch(SIGNIN(email,googleId));
+    dispatch(SIGNIN(email, googleId));
   };
   useEffect(() => {
     if (userDetail?.isAuthenticated) {
@@ -73,7 +73,7 @@ function Login() {
             alignItems: "center",
             textDecoration: "none",
             display: "flex",
-            padding:'25px'
+            padding: "25px",
           }}
         >
           <ArrowBackIcon />
@@ -81,13 +81,13 @@ function Login() {
         </Typography>
       </Link>
       {loading ? (
-        <Backdrop open={loading} style={{ color: "white" }}>
+        <Backdrop open={loading}>
           <CircularProgress color="inherit" />
         </Backdrop>
       ) : (
         <Container maxWidth="lg">
           <Grid container alignItems="center" direction="row">
-            <Grid item lg={6} md={6} sm={12}>
+            <Grid item lg={6} md={6} sm={12} xs={12}>
               <img
                 src="../../../assets/login.jpg"
                 alt="sideImage"
@@ -96,7 +96,9 @@ function Login() {
             </Grid>
             <Grid item lg={6} md={6} sm={12}>
               <Typography className="login_header">Login</Typography>
-              <Typography variant ="subtitle1" style={{marginBottom:'8px'}}>Welcome Back </Typography>
+              <Typography variant="subtitle1" style={{ marginBottom: "8px" }}>
+                Welcome Back{" "}
+              </Typography>
               {userInfo?.message ? (
                 <Alert
                   severity="error"
@@ -105,13 +107,8 @@ function Login() {
                   {userInfo?.message}
                 </Alert>
               ) : null}
-              <Grid
-                container
-                spacing={1}
-                alignContent="center"
-                alignItems="center"
-              >
-                <Grid item>
+              <Grid spacing={1} alignItems="center" direction="row" container>
+                <Grid item md={6} sm={12} xs={12} lg={6} alignItems="center">
                   <FormControl variant="outlined">
                     <InputLabel htmlFor="outlined-adornment-password">
                       Email
@@ -124,17 +121,19 @@ function Login() {
                       value={userdetail.email}
                       onChange={handleChange("email")}
                       labelWidth={40}
+                      className="field"
                     />
                   </FormControl>
                 </Grid>
 
-                <Grid item>
+                <Grid item md={6} sm={12} xs={12} lg={6}>
                   <FormControl variant="outlined">
                     <InputLabel htmlFor="outlined-adornment-password">
-                      Password 
+                      Password
                     </InputLabel>
                     <OutlinedInput
                       required
+                      className="field"
                       id="outlined-adornment-password"
                       type={showPassword ? "text" : "password"}
                       value={userdetail.password}
@@ -165,14 +164,21 @@ function Login() {
                 color="primary"
                 onClick={handleLogin}
                 size="large"
-                style={{marginTop:"10px",width:"473px"}}
+                className="loginBtn"
               >
                 Login
               </Button>
 
               <Typography className="register">
-                Not registered yet ? <Link to="/signup" style={{textDecoration:'none'}}>Register Now</Link>
+                Not registered yet ?{" "}
+                <Link to="/signup" style={{ textDecoration: "none" }}>
+                  Register Now
+                </Link>
               </Typography>
+
+              <Link to="/forgotpassword" style={{ textDecoration: "none",color:'red' }}>
+                Forgot Password ?
+              </Link>
 
               <Typography style={{ textAlign: "center", marginTop: "20px" }}>
                 Or
@@ -184,7 +190,6 @@ function Login() {
                 onFailure={responseGoogle}
                 buttonText="Login with google"
                 cookiePolicy={"single_host_origin"}
-                
               />
             </Grid>
           </Grid>

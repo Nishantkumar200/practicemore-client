@@ -2,8 +2,7 @@ import axios from "axios";
 import { URL } from "../URL/url";
 
 export const SIGNUP =
-  ( username, email, password, confirmPassword , history) =>
-  async (dispatch) => {
+  (username, email, password, confirmPassword, history) => async (dispatch) => {
     // console.log(username, password, email);
     dispatch({
       type: "REGISTER_USER_REQUEST",
@@ -40,36 +39,33 @@ export const SIGNUP =
     }
   };
 
-export const SIGNIN =
-  ( email, password) =>
-  async (dispatch) => {
+export const SIGNIN = (email, password) => async (dispatch) => {
+  // console.log(email,password)
+  dispatch({ type: "LOGIN_REQUEST", payload: { email, password } });
 
-    // console.log(email,password)
-    dispatch({ type: "LOGIN_REQUEST", payload: { email, password } });
+  try {
+    const { data } = await axios.post(`${URL}/user/login`, {
+      email,
+      password,
+    });
 
-    try {
-      const { data } = await axios.post(`${URL}/user/login`, {
-        email,
-        password,
-      });
+    // console.log("login",data)
 
-      // console.log("login",data)
+    dispatch({
+      type: "LOGIN_REQUEST_SUCCESS",
+      payload: data,
+    });
 
-      dispatch({
-        type: "LOGIN_REQUEST_SUCCESS",
-        payload: data,
-      });
-
-      // if (data?.token) {
-      //   localStorage.setItem("userInfo", JSON.stringify(data));
-      //   history.push("/dashboard");
-      // } else {
-      //   history.push("/login");
-      // }
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
+    // if (data?.token) {
+    //   localStorage.setItem("userInfo", JSON.stringify(data));
+    //   history.push("/dashboard");
+    // } else {
+    //   history.push("/login");
+    // }
+  } catch (error) {
+    console.log(error.message);
+  }
+};
 
 export const Logout = (history) => async (dispatch) => {
   dispatch({
@@ -252,6 +248,56 @@ export const joinMeeting = (mail, meetLink) => async (dispatch) => {
     });
 
     console.log(data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Send email request
+
+export const emailRequest = (email) => async (dispatch) => {
+  dispatch({
+    type: "EMAIL_REQUEST",
+    payload: email,
+  });
+
+  try {
+    const { data } = await axios.post(`${URL}/user/resetPasswordemail`, {
+      email,
+    });
+
+    console.log(data);
+
+    dispatch({
+      type: "EMAIL_REQUEST_SUCCESS",
+      payload: data,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// Reset password
+
+export const resetPassword = (email, newpassword) => async (dispatch) => {
+
+  console.log(email,newpassword)
+  dispatch({
+    type: "RESET_PASSWORD_REQUEST",
+    payload: { email, newpassword },
+  });
+
+  try {
+    const { data } = await axios.put(`${URL}/user/resetpassword`, {
+      email,
+      newpassword,
+    });
+
+    console.log(data)
+    dispatch({
+      type: "RESET_PASSWORD_REQUEST_SUCCESS",
+      payload: data,
+    });
   } catch (error) {
     console.log(error);
   }

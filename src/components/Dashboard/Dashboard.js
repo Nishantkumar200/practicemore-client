@@ -101,7 +101,13 @@ function Dashboard() {
           <Toolbar>
             <Grid container alignItems="center" justify="space-between">
               <Grid item>
-                <Typography>Brand Logo</Typography>
+              <Link to="/">
+                    <img
+                      src="../../../assets/logo.png"
+                      alt="logo"
+                      className="logo"
+                    />
+                  </Link>
               </Grid>
               <Grid item>
                 <Grid container alignItems="center" spacing={4}>
@@ -224,7 +230,7 @@ function Dashboard() {
             </DialogActions>
           </Dialog>
           {loading ? (
-            <Backdrop open={loading} style={{ color: "white" }}>
+            <Backdrop open={loading}>
               <CircularProgress color="inherit" />
             </Backdrop>
           ) : (

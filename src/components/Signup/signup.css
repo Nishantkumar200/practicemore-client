@@ -1,0 +1,24 @@
+
+.signupImg{
+    object-fit: contain !important;
+    width:100% !important;
+    height: auto !important;
+}
+
+.signupBtn{
+    background-color: #8c30f5 !important;
+    color: white !important;
+    padding: 10px 35px !important;
+    margin-top: 25px !important;
+    margin-bottom: 15px !important;
+    text-transform: capitalize !important;
+    width: 150px !important;
+    max-width: 300px !important;
+    align-items:center !important
+}
+
+.field {
+    width: 300px !important;
+    max-width: 300px !important;
+    margin-top:5px !important
+  }

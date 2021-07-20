@@ -1,0 +1,14 @@
+.forgot {
+  object-fit: contain !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+.emailRequest {
+  background-color: #8c30f5 !important;
+  color: white !important;
+  margin-top: 25px !important;
+  padding:10px 35px !important;
+  margin-bottom: 15px !important;
+  text-transform: capitalize !important;
+  align-items: center !important;
+}

@@ -1,21 +1,33 @@
-.login_illustration{
-    object-fit:contain !important;
-    width: 100% !important;
-    height: 100% !important;
+.login_illustration {
+  object-fit: contain !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 99% !important;
 }
 
-.login_header{
-    font-size:2em !important;
-    font-weight:600 !important;
-    margin-bottom: 10px !important;
+.login_header {
+  font-size: 2em !important;
+  font-weight: 600 !important;
+  margin-bottom: 10px !important;
 }
 
-.field{
-    margin-bottom: 20px !important;
-    margin-top: 5px !important;
-
+.field {
+  width: 300px !important;
+  max-width: 300px !important
 }
 
-.register{
-    margin-top:20px !important;
+.register {
+  margin-top: 20px !important;
+}
+
+.loginBtn {
+  background-color: #8c30f5 !important;
+  color: white !important;
+  padding: 10px 35px !important;
+  margin-top: 25px !important;
+  margin-bottom: 15px !important;
+  text-transform: capitalize !important;
+  width: 150px !important;
+  max-width: 300px !important;
+  align-items:center !important
 }

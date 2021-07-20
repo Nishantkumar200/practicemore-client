@@ -4,17 +4,17 @@ import About from "./components/About/About";
 import Challenges from "./components/ChallengePage/Challenges";
 import Dashboard from "./components/Dashboard/Dashboard";
 import Faqs from "./components/Faqs/Faqs";
+import Forgot from "./components/ForgotPassword/Forgot";
 import Home from "./components/Home/Home";
 import Joinmeeting from "./components/JoinMeeting/Joinmeeting";
 import Login from "./components/Login/Login";
 import Meeting from "./components/Meeting/Meeting";
 import Meetingreschedule from "./components/MeetingReschedule/Meetingreschedule";
+import Reset from "./components/ResetPassword/Reset";
 import Signup from "./components/Signup/Signup";
 import Tryout from "./components/Try Out/Tryout";
 
-
 function App() {
-  
   return (
     <Router>
       <Switch>
@@ -30,26 +30,26 @@ function App() {
         <Route path="/dashboard">
           <Dashboard />
         </Route>
-        <Route exact path = "/schedule/:id">
+        <Route exact path="/schedule/:id">
           <Meeting />
         </Route>
-        <Route path = "/challenge/:id">
+        <Route path="/challenge/:id">
           <Challenges />
         </Route>
-        <Route path ="/meetingreschedule/:userId/:meetingId" >
+        <Route path="/meetingreschedule/:userId/:meetingId">
           <Meetingreschedule />
         </Route>
-        <Route path ="/session/join" >
+        <Route path="/session/join">
           <Joinmeeting />
         </Route>
-        <Route path ="/tryout">
-         <Tryout />
+        <Route path="/tryout">
+          <Tryout />
         </Route>
-        <Route path ="/faq">
-         <Faqs />
+        <Route path="/forgotpassword">
+          <Forgot />
         </Route>
-        <Route path ="/about">
-         <About/>
+        <Route path="/resetpassword">
+          <Reset />
         </Route>
       </Switch>
     </Router>
