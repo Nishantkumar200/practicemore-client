@@ -54,6 +54,7 @@ import Video from "twilio-video";
 import axios from "axios";
 import Room from "../../Room";
 import CallEndIcon from "@material-ui/icons/CallEnd";
+import Alert from '@material-ui/lab/Alert'
 
 function Challenges() {
   const socket = io(URL);
@@ -77,6 +78,7 @@ function Challenges() {
   const [keyBind, setKeyBind] = useState("Standard");
   const [tabs, setTabs] = useState(2);
   const [isClicked, setisClicked] = useState(false);
+  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
   // for Video Chatting
   const [username, setUsername] = useState("");
@@ -124,11 +126,8 @@ function Challenges() {
   const result = compiled?.compiled?.body;
 
   // for sending meeting link
-
   const { loading, joiningInfo } = useSelector((state) => state.joinSession);
-
-  console.log(loading, joiningInfo);
-
+  
   // Firebase Initialization
   const config = {
     apiKey: "AIzaSyAE8uc22tk0mIC0wrYwrba9NmBi_MHHmC4",
@@ -145,7 +144,7 @@ function Challenges() {
   };
 
   const resetCode = () => {
-    setCode("");
+    setCode(" ");
     setOpenDialog((prevState) => !prevState);
   };
 
@@ -170,10 +169,10 @@ function Challenges() {
     }
   };
 
-  const handleFreindMeet = (mail, meetLink) => {
+  const handleFreindMeet = (mail, meetLink,invitesentby) => {
     if (mail.match(regexEmail) && mail.length > 0) {
-      dispatch(joinMeeting(mail, meetLink));
-      setFrndEmail("");
+      dispatch(joinMeeting(mail, meetLink,invitesentby));
+      setFrndEmail(" ");
     } else {
       return alert("Invalid email");
     }
@@ -200,7 +199,7 @@ function Challenges() {
       window.location = window.location + "#" + ref.key; // add it as a hash to the URL.
     }
     if (typeof console !== "undefined") {
-      console.log("Firebase data: ", ref.toString());
+      // console.log("Firebase data: ", ref.toString());
     }
     return ref;
   }
@@ -212,7 +211,7 @@ function Challenges() {
   useEffect(() => {
     var firepadRef = getExampleRef();
     var firepad = firepadInstance.fromACE(firepadRef, refName?.current?.editor);
-    console.log(firepad);
+    // console.log(firepad);
   }, [firepadInstance]);
 
   const handleSubmit = useCallback(
@@ -223,7 +222,7 @@ function Challenges() {
         identity: username,
         room: roomName,
       });
-      console.log(data);
+      // console.log(data);
 
       Video.connect(data.token, {
         name: roomName,
@@ -273,9 +272,7 @@ function Challenges() {
       };
     }
   }, [room, handleLogout]);
-
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-  console.log(userInfo)
+  // console.log(userInfo)
   return (
     <React.Fragment>
       <Container maxWidth="xl" className="mainContainer">
@@ -310,7 +307,10 @@ function Challenges() {
                     <CloseIcon />
                   </IconButton>
                 </Grid>
+
+               
               </Grid>
+              {joiningInfo? <Alert severity="success">{joiningInfo?.data?.messgage}</Alert> : null}
             </DialogTitle>
             <DialogContent>
               <DialogContentText>
@@ -345,7 +345,7 @@ function Challenges() {
                 startIcon={
                   loading ? <SettingsEthernetIcon /> : <GroupAddIcon />
                 }
-                onClick={() => handleFreindMeet(frndEmail, meetLink)}
+                onClick={() => handleFreindMeet(frndEmail, meetLink,userInfo?.username)}
                 disabled={loading}
               >
                 {loading ? "Sending Request..." : "Send a request"}
@@ -387,7 +387,7 @@ function Challenges() {
             <DialogContent>
               <DialogContentText>
                 <Typography variant="h6">
-                  Know someone you'd like to practice with? Send them an invite!
+                  Know someone you'd like to practice along with video chatting .
                 </Typography>
 
                 <Typography>
@@ -416,13 +416,11 @@ function Challenges() {
                 value={roomName}
                 onChange={(e) => setRoomName(e.target.value)}
                 disabled={connecting}
-                helperText={`Say ${roomName} name to join this room`}
+                helperText={`To join with freind , Tell room name - ${roomName}`}
               />
             </DialogContent>
             <DialogActions>
-              <Button variant="contained" color="secondary">
-                Cancel
-              </Button>
+             
               <Button
                 variant="contained"
                 color="primary"

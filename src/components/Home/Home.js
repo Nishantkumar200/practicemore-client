@@ -11,6 +11,9 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { Backdrop } from "@material-ui/core";
+import GitHubIcon from "@material-ui/icons/GitHub";
+import { IconButton } from "@material-ui/core";
+import LinkedInIcon from "@material-ui/icons/LinkedIn";
 
 function Home() {
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -24,7 +27,7 @@ function Home() {
       history.push("/");
     }
 
-    setTimeout(() => setSpinner(false), 3000);
+    setTimeout(() => setSpinner(false), 1000);
     document.title = "Home";
   }, [userInfo, history]);
   return (
@@ -277,15 +280,69 @@ function Home() {
                       <Typography className="f_description" variant="overline">
                         To make more understanding of code , we provide you one
                         to one video chatting so that you can discuss about your
-                        doubts and clear your fear of online technical
-                        interview .
+                        doubts and clear your fear of online technical interview
+                        .
                       </Typography>
                     </CardContent>
                   </Card>
                 </Grid>
               </Grid>
             </Grid>
+
+            <Typography className="aboutDev">About Developer</Typography>
           </Container>
+          <Grid
+            container
+            style={{
+              padding: "15px",
+              backgroundColor: "#F6F6F6",
+              marginTop: "20px",
+            }}
+            alignItems="flex-start"
+            spacing={4}
+          >
+            <Grid item sm={12} lg={6} md={6}>
+              <img
+                src="../../../assets/developer.jpeg"
+                className="devImage"
+                alt="Developer"
+              />
+            </Grid>
+
+            <Grid item sm={12} lg={6} md={6}>
+              <Typography variant="overline">
+                I'm a final year B.Tech student , persuing my btech degree in
+                mechanical engineering and also a self-taught software developer
+                whose interest to solve real life problems.
+              </Typography>
+              <Typography variant="overline">
+                I'm passionate about the technology and learning every day to
+                build carrier as a software developer.
+              </Typography>
+
+              <Typography variant="h6" style={{ marginTop: "50px" }}>
+                Get in touch &#8594;{" "}
+              </Typography>
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://github.com/Nishantkumar200"
+              >
+                <IconButton>
+                  <GitHubIcon />
+                </IconButton>
+              </a>
+              <a
+                href="https://www.linkedin.com/in/nishant-kumar-8a2009207/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <IconButton>
+                  <LinkedInIcon />
+                </IconButton>
+              </a>
+            </Grid>
+          </Grid>
         </>
       )}
     </React.Fragment>

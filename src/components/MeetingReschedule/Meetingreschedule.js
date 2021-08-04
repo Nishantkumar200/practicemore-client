@@ -18,13 +18,11 @@ import { rescheduleMeeting } from "../../Actions/user";
 
 function Meetingreschedule() {
   const { userId, meetingId } = useParams();
-  console.log(userId, meetingId);
   const dispatch = useDispatch();
   const history = useHistory();
   const [newSelectedDate, setnewSelectedDate] = useState(new Date());
 
   const RescheduleMeeting = () => {
-    console.log(newSelectedDate);
     dispatch(rescheduleMeeting(userId, meetingId, newSelectedDate));
     history.push('/dashboard')
     window.location.reload()
@@ -48,7 +46,7 @@ function Meetingreschedule() {
         </Toolbar>
       </AppBar>
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
-        <DatePicker value={newSelectedDate} onChange={setnewSelectedDate} />
+        <DatePicker value={newSelectedDate} onChange={setnewSelectedDate} disablePast />
         <TimePicker value={newSelectedDate} onChange={setnewSelectedDate} />
       </MuiPickersUtilsProvider>
       <Button variant="contained" color="default" onClick={RescheduleMeeting}>

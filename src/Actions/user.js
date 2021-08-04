@@ -49,19 +49,10 @@ export const SIGNIN = (email, password) => async (dispatch) => {
       password,
     });
 
-    // console.log("login",data)
-
     dispatch({
       type: "LOGIN_REQUEST_SUCCESS",
       payload: data,
     });
-
-    // if (data?.token) {
-    //   localStorage.setItem("userInfo", JSON.stringify(data));
-    //   history.push("/dashboard");
-    // } else {
-    //   history.push("/login");
-    // }
   } catch (error) {
     console.log(error.message);
   }
@@ -229,7 +220,7 @@ export const executeProgram = (code, language, input) => async (dispatch) => {
 
 //join the meeting
 
-export const joinMeeting = (mail, meetLink) => async (dispatch) => {
+export const joinMeeting = (mail, meetLink,invitesentby) => async (dispatch) => {
   dispatch({
     type: "CONNECT_TO_FRND_REQUEST",
     payload: { mail },
@@ -240,6 +231,7 @@ export const joinMeeting = (mail, meetLink) => async (dispatch) => {
     const { data } = await axios.post(`${URL}/session/join`, {
       mail,
       meetLink,
+      invitesentby
     });
 
     dispatch({
@@ -247,7 +239,6 @@ export const joinMeeting = (mail, meetLink) => async (dispatch) => {
       payload: { data },
     });
 
-    console.log(data);
   } catch (error) {
     console.log(error);
   }
@@ -280,8 +271,7 @@ export const emailRequest = (email) => async (dispatch) => {
 // Reset password
 
 export const resetPassword = (email, newpassword) => async (dispatch) => {
-
-  console.log(email,newpassword)
+  console.log(email, newpassword);
   dispatch({
     type: "RESET_PASSWORD_REQUEST",
     payload: { email, newpassword },
@@ -293,7 +283,7 @@ export const resetPassword = (email, newpassword) => async (dispatch) => {
       newpassword,
     });
 
-    console.log(data)
+    console.log(data);
     dispatch({
       type: "RESET_PASSWORD_REQUEST_SUCCESS",
       payload: data,

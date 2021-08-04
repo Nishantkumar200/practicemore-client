@@ -158,3 +158,18 @@
   text-align: center !important;
   padding: 5px !important;
 }
+
+.aboutDev{
+  font-size: 2.3em !important;
+  font-weight: 400 !important;
+  font-family: "Poppins", sans-serif !important;
+  margin-top: 60px !important;
+  color: #0a0b2f !important;
+  text-align: center !important;
+}
+
+.devImage{
+  object-fit: contain !important;
+  width: 100% !important;
+  border-radius: 10px !important;
+}

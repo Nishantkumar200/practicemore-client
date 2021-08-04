@@ -38,7 +38,6 @@ import {
 } from "@material-ui/pickers";
 import moment from "moment";
 import CloseIcon from "@material-ui/icons/Close";
-
 import IconButton from "@material-ui/core/IconButton";
 import Avatar from "@material-ui/core/Avatar";
 import ScheduleIcon from "@material-ui/icons/Schedule";
@@ -70,7 +69,6 @@ function Dashboard() {
 
   // For Scheduling the meeting
   const handleSubmit = () => {
-    console.log(practice)
     dispatch(scheduleMeeting(userDetail?.id, practice, selectedDate));
     setModalstate((prevState) => !prevState);
     setTimeout(() => {
@@ -79,20 +77,23 @@ function Dashboard() {
   };
 
   // cancel the meeting
-
   const meetingCancel = (meetId, userId) => {
     window.location.reload();
     dispatch(cancelmeeting(meetId, userId));
     dispatch(findAllMeeting(userDetail?.id));
   };
 
-  // handling meeting with freind
 
+  // handle join session
+  const joinedSession = () =>{
+    // TODO: update the isJoined into database
+  }
+
+  // handling meeting with freind
   useEffect(() => {
     dispatch(findAllMeeting(userDetail?.id));
     document.title = "Dashboard";
   }, [dispatch, userDetail?.id]);
-
 
   return (
     <React.Fragment>
@@ -174,6 +175,7 @@ function Dashboard() {
                         className="practice"
                       >
                         {allAvailableForPractice.map((forPractice) => (
+                         
                           <MenuItem
                             value={forPractice.toLowerCase().replace(/\s/g, "")}
                           >
@@ -242,7 +244,6 @@ function Dashboard() {
                       <TableCell>Scheduled On</TableCell>
                       <TableCell>Question you'll ask</TableCell>
                       <TableCell>Type</TableCell>
-                    
                       <TableCell>Action</TableCell>
                     </TableRow>
                   </TableHead>
@@ -256,7 +257,7 @@ function Dashboard() {
                         </TableCell>
                         <TableCell>
                           <Link to={`/challenge/${meeting?.questionId}`}>
-                            {meeting?.quesionyouask}
+                            {meeting?.questionyouask}
                           </Link>
                         </TableCell>
                         <TableCell>{meeting?.language.toUpperCase()}</TableCell>
@@ -265,7 +266,7 @@ function Dashboard() {
                             new Date(meeting?.slottime)
                           ) ? (
                             <Link to={`/schedule/${meeting?.questionId}`} style={{textDecoration:"none"}}>
-                              <Button variant="contained" color="primary">
+                              <Button variant="contained" color="primary" onClick={joinedSession}>
                                 Join Session
                               </Button>
                             </Link>
@@ -302,7 +303,7 @@ function Dashboard() {
                   </TableBody>
                 </Table>
               ) : (
-                <Typography>No meeting is scheduled</Typography>
+                <Typography variant="h6" align="center"  style ={{marginTop:'55px', color:'	#808080'}}>Schedule a meeting for practicing or try the feature - Practice with Friends</Typography>
               )}
             </TableContainer>
           )}
